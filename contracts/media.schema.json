@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pmnow://contracts/media",
+  "title": "Media",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "url"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "image",
+        "video",
+        "thumbnail",
+        "audio",
+        "embed"
+      ]
+    },
+    "url": {
+      "type": "string"
+    },
+    "caption": {
+      "type": "string"
+    },
+    "credit": {
+      "type": "string"
+    },
+    "width": {
+      "type": "integer"
+    },
+    "height": {
+      "type": "integer"
+    },
+    "position": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": true
+}

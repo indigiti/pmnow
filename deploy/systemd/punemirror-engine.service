@@ -1,0 +1,18 @@
+[Unit]
+Description=Pune Mirror FastAPI content engine
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/punemirror-now
+EnvironmentFile=/var/www/punemirror-now/.env
+ExecStart=/usr/bin/python3 -m uvicorn engine.main:app --host 127.0.0.1 --port 8788
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/www/punemirror-now/storage
+
+[Install]
+WantedBy=multi-user.target

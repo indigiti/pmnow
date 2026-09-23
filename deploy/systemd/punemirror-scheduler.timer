@@ -1,0 +1,8 @@
+[Unit]
+Description=Run Pune Mirror scheduler every minute
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=true
+Unit=punemirror-scheduler.service
+[Install]
+WantedBy=timers.target

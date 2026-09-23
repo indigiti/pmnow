@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pmnow://contracts/live-story",
+  "title": "LiveStory",
+  "type": "object",
+  "required": [
+    "id",
+    "story_id",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "story_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "live",
+        "paused",
+        "resolved"
+      ]
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "ended_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

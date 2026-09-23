@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Analysis Result",
+  "type": "object",
+  "required": ["id", "content_id", "analyzer", "analyzer_version", "analysis_type", "result_json"],
+  "properties": {
+    "id": {"type": "string", "format": "uuid"},
+    "content_id": {"type": "string", "format": "uuid"},
+    "analyzer": {"type": "string"},
+    "analyzer_version": {"type": "string"},
+    "analysis_type": {"type": "string"},
+    "result_json": {},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Story Cluster",
+  "type": "object",
+  "required": ["id", "title", "primary_content_id", "content_ids"],
+  "properties": {
+    "id": {"type": "string", "format": "uuid"},
+    "title": {"type": "string"},
+    "primary_content_id": {"type": "string", "format": "uuid"},
+    "content_ids": {"type": "array", "items": {"type": "string", "format": "uuid"}},
+    "category_slug": {"type": ["string", "null"]},
+    "location_slugs": {"type": "array", "items": {"type": "string"}}
+  }
+}

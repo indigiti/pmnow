@@ -1,0 +1,23 @@
+<?php
+$app=require dirname(__DIR__).'/bootstrap/app.php';$root=$app['root'];$config=$app['config'];$checks=[];
+$checks['PHP >= 8.2']=version_compare(PHP_VERSION,'8.2.0','>=');
+$checks['JSON extension']=extension_loaded('json');
+$checks['OpenSSL extension']=extension_loaded('openssl');
+$checks['storage writable']=is_writable($root.'/storage');
+$checks['public media']=count(glob($root.'/public/media/*.jpg')?:[])>0;
+$checks['seeded stories']=count(glob($root.'/storage/data/stories/*.json')?:[])>=6;
+$checks['shared content contract']=is_file($root.'/contracts/content.schema.json');
+$checks['analysis contract']=is_file($root.'/contracts/analysis-result.schema.json');
+$checks['cluster contract']=is_file($root.'/contracts/story-cluster.schema.json');
+$checks['FastAPI entrypoint']=is_file($root.'/engine/api/main.py');
+$checks['provider registry']=is_file($root.'/engine/providers/registry.py');
+$checks['intelligence pipeline']=is_file($root.'/engine/intelligence/pipeline.py');
+$checks['SSRF guard']=is_file($root.'/engine/security/url_guard.py')&&is_file($root.'/app/Core/UrlGuard.php');
+$checks['credential vault']=is_file($root.'/app/Services/CredentialVault.php');
+$checks['security kernel']=is_file($root.'/app/Services/SecurityKernel.php');
+$checks['Error Center']=is_file($root.'/app/Services/ErrorCenterService.php');
+$checks['production templates']=is_file($root.'/deploy/nginx/punemirror.conf.example')&&is_file($root.'/deploy/systemd/punemirror-worker.service');
+$checks['seeded sources']=count(glob($root.'/storage/data/sources/*.json')?:[])>=5;
+foreach($checks as $name=>$ok)echo($ok?'[OK] ':'[FAIL] ').$name."\n";
+echo "Persistence: {$config['persistence']}\nRuntime: {$config['runtime']}\nEngine: {$config['engine']['url']}\nSecurity: CSRF=".(($config['security']['csrf']??false)?'on':'off').", private-source-URLs=".(($config['security']['allow_private_source_urls']??false)?'allowed':'blocked')."\n";
+exit(in_array(false,$checks,true)?1:0);

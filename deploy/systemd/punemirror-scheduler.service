@@ -1,0 +1,12 @@
+[Unit]
+Description=Pune Mirror scheduler tick
+After=network.target
+[Service]
+Type=oneshot
+WorkingDirectory=/var/www/punemirror-now
+EnvironmentFile=/var/www/punemirror-now/.env
+ExecStart=/usr/bin/php /var/www/punemirror-now/tools/scheduler.php
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/www/punemirror-now/storage

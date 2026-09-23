@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pmnow://contracts/story",
+  "title": "Story",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "status",
+    "headline",
+    "media_ids",
+    "category_ids",
+    "location_ids"
+  ],
+  "properties": {
+    "_schema": {
+      "const": "story"
+    },
+    "_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f-]{36}$"
+    },
+    "type": {
+      "enum": [
+        "article",
+        "gallery",
+        "developing",
+        "live",
+        "reel",
+        "short_update"
+      ]
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "review",
+        "published",
+        "archived",
+        "hidden"
+      ]
+    },
+    "headline": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deck": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "media_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "location_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "published_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

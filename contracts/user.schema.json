@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pmnow://contracts/user",
+  "title": "User",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "role"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "role": {
+      "type": "string"
+    },
+    "preferences": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

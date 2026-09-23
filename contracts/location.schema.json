@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pmnow://contracts/location",
+  "title": "Location",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "slug"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

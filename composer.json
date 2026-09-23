@@ -1,0 +1,7 @@
+{
+  "name": "punemirror/now",
+  "description": "Pune Mirror Now M1-M7 no-DB mobile news, content intelligence, newsroom and hardened runtime",
+  "type": "project",
+  "require": {"php": ">=8.2"},
+  "autoload": {"psr-4": {"PuneMirror\\": "app/"}}
+}

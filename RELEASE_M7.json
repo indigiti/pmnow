@@ -1,0 +1,10 @@
+{
+  "product": "Pune Mirror Now",
+  "milestone": "M7",
+  "engine_version": "0.7.0",
+  "persistence_default": "file",
+  "identity": "UUIDv7",
+  "status": "production-hardening-complete",
+  "database_driver": "deferred",
+  "notes": "No-DB canonical storage remains the default; DB migration remains a later milestone."
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pmnow://contracts/live-update",
+  "title": "LiveUpdate",
+  "type": "object",
+  "required": [
+    "id",
+    "live_story_id",
+    "headline",
+    "published_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "live_story_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "headline": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "published_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

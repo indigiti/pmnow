@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Normalized Content",
+  "type": "object",
+  "required": ["id", "source_id", "provider", "external_id", "content_type", "workflow_status"],
+  "properties": {
+    "id": {"type": "string", "format": "uuid"},
+    "source_id": {"type": "string", "format": "uuid"},
+    "provider": {"type": "string"},
+    "external_id": {"type": "string", "minLength": 1},
+    "content_type": {"type": "string"},
+    "title": {"type": ["string", "null"]},
+    "body": {"type": "string"},
+    "caption": {"type": "string"},
+    "permalink": {"type": ["string", "null"]},
+    "media_ids": {"type": "array", "items": {"type": "string", "format": "uuid"}},
+    "workflow_status": {"type": "string"},
+    "content_hash": {"type": "string"}
+  }
+}
