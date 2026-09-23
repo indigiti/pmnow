@@ -28,6 +28,13 @@ jobs:
           find app bootstrap config public resources/views tools tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
           php ops/preflight.php
 
+      - name: Cloudways disabled-function compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -d disable_functions=putenv -r 'require "bootstrap/env.php"; pm_env_set("PMNOW_DISABLED_FUNCTION_TEST","ok"); if (pm_env("PMNOW_DISABLED_FUNCTION_TEST") !== "ok") { exit(1); } echo "portable env helper OK\n";'
+          php -d disable_functions=putenv -r '$_ENV["APP_ENV"]="production"; $_SERVER["APP_ENV"]="production"; $app=require "bootstrap/app.php"; if (($app["config"]["env"] ?? "") !== "production") { exit(1); } echo "bootstrap without putenv OK\n";'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:

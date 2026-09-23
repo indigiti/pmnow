@@ -47,6 +47,7 @@ $localRoot=dirname(__DIR__);
 $deployedRoot=dirname(__DIR__,2).'/private_html/pmnow';
 $root=is_file($localRoot.'/bootstrap/app.php')?$localRoot:$deployedRoot;
 if(!is_file($root.'/bootstrap/app.php')){http_response_code(503);header('Content-Type: text/plain; charset=utf-8');exit('PMNow private runtime is not installed.');}
+require_once $root.'/bootstrap/env.php';
 if($root===$deployedRoot){
     $defaults=[
         'APP_ENV'=>'production','APP_DEBUG'=>'false','APP_BASE_PATH'=>'/pmnow',
@@ -54,14 +55,15 @@ if($root===$deployedRoot){
         'ADMIN_DEV_BYPASS'=>'false','CSRF_ENABLED'=>'true','SESSION_SECURE_COOKIE'=>'true',
         'HSTS_ENABLED'=>'true','ALLOW_PRIVATE_SOURCE_URLS'=>'false','ENGINE_AUTOSTART'=>'false'
     ];
-    foreach($defaults as $k=>$v)if(getenv($k)===false)putenv($k.'='.$v);
-    if(getenv('APP_URL')===false){$scheme=(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http';$host=(string)($_SERVER['HTTP_HOST']??'localhost');putenv('APP_URL='.$scheme.'://'.$host.'/pmnow');}
-    if(getenv('APP_KEY')===false || strlen((string)getenv('APP_KEY'))<24){
+    foreach($defaults as $k=>$v)if(pm_env($k,null)===null)pm_env_set($k,$v);
+    if(pm_env('APP_URL',null)===null){$scheme=(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http';$host=(string)($_SERVER['HTTP_HOST']??'localhost');pm_env_set('APP_URL',$scheme.'://'.$host.'/pmnow');}
+    $configuredKey=(string)pm_env('APP_KEY','');
+    if(strlen($configuredKey)<24){
         $keyFile=$root.'/storage/secrets/app.key';
         if(!is_dir(dirname($keyFile)))@mkdir(dirname($keyFile),0700,true);
         $key=is_file($keyFile)?trim((string)@file_get_contents($keyFile)):'';
         if(strlen($key)<24){$key=bin2hex(random_bytes(32));@file_put_contents($keyFile,$key.PHP_EOL,LOCK_EX);@chmod($keyFile,0600);}
-        if(strlen($key)>=24)putenv('APP_KEY='.$key);
+        if(strlen($key)>=24)pm_env_set('APP_KEY',$key);
     }
 }
 $app=require $root.'/bootstrap/app.php';$root=$app['root'];$config=$app['config'];
