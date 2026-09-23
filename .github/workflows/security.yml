@@ -34,7 +34,7 @@ jobs:
           set -euo pipefail
           php -d disable_functions=putenv -r 'require "bootstrap/env.php"; pm_env_set("PMNOW_DISABLED_FUNCTION_TEST","ok"); if (pm_env("PMNOW_DISABLED_FUNCTION_TEST") !== "ok") { exit(1); } echo "portable env helper OK\n";'
           php -d disable_functions=putenv -r '$_ENV["APP_ENV"]="production"; $_SERVER["APP_ENV"]="production"; $app=require "bootstrap/app.php"; if (($app["config"]["env"] ?? "") !== "production") { exit(1); } echo "bootstrap without putenv OK\n";'
-          php -d disable_functions=putenv -r 'require "bootstrap/env.php"; require "app/Core/Request.php"; pm_env_set("APP_BASE_PATH","/pmnow"); $_SERVER["REQUEST_METHOD"]="GET"; $_SERVER["REQUEST_URI"]="/pmnow/"; $r=\\PuneMirror\\Core\\Request::capture(); if ($r->path !== "/") { fwrite(STDERR,"route=".$r->path."\\n"); exit(1); } echo "subpath routing without putenv OK\\n";'
+          php -d disable_functions=putenv -r 'require "bootstrap/env.php"; require "app/Core/Request.php"; pm_env_set("APP_BASE_PATH","/pmnow"); $_SERVER["REQUEST_METHOD"]="GET"; $_SERVER["REQUEST_URI"]="/pmnow/"; $r=PuneMirror\Core\Request::capture(); if ($r->path !== "/") { fwrite(STDERR,"route=".$r->path."\\n"); exit(1); } echo "subpath routing without putenv OK\\n";'
 
       - name: Setup Python
         uses: actions/setup-python@v5
