@@ -15,7 +15,7 @@ final class Request
     {
         $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-        $base=(string)(getenv('APP_BASE_PATH')?:'');
+        $base=(string)pm_env('APP_BASE_PATH','');
         $base='/' . trim($base,'/'); if($base==='/')$base='';
         if($base!=='' && ($path===$base || str_starts_with($path,$base.'/'))){
             $path=substr($path,strlen($base)) ?: '/';
