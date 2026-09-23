@@ -56,6 +56,9 @@ if($root===$deployedRoot){
         'HSTS_ENABLED'=>'true','ALLOW_PRIVATE_SOURCE_URLS'=>'false','ENGINE_AUTOSTART'=>'false'
     ];
     foreach($defaults as $k=>$v)if(pm_env($k,null)===null)pm_env_set($k,$v);
+    // This application is deployed by DigiOps at a fixed public sub-path.
+    // Force it here because some PHP-FPM environments expose blank/root APP_BASE_PATH values.
+    pm_env_set('APP_BASE_PATH','/pmnow');
     if(pm_env('APP_URL',null)===null){$scheme=(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')?'https':'http';$host=(string)($_SERVER['HTTP_HOST']??'localhost');pm_env_set('APP_URL',$scheme.'://'.$host.'/pmnow');}
     $configuredKey=(string)pm_env('APP_KEY','');
     if(strlen($configuredKey)<24){

@@ -17,6 +17,11 @@ final class Request
         $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         $base=(string)pm_env('APP_BASE_PATH','');
         $base='/' . trim($base,'/'); if($base==='/')$base='';
+        if($base===''){
+            $scriptPath=(string)($_SERVER['SCRIPT_NAME']??'');
+            $scriptDir=rtrim(str_replace('\\','/',dirname($scriptPath)),'/');
+            if($scriptDir!=='' && $scriptDir!=='.' && $scriptDir!=='/') $base=$scriptDir;
+        }
         if($base!=='' && ($path===$base || str_starts_with($path,$base.'/'))){
             $path=substr($path,strlen($base)) ?: '/';
         }
