@@ -36,8 +36,15 @@ final class SecurityKernel
 
     private function sameOrigin(string $origin): bool
     {
-        $expected = parse_url((string)($this->config['url'] ?? ''), PHP_URL_HOST);
-        $actual = parse_url($origin, PHP_URL_HOST);
-        return $expected && $actual && strcasecmp((string)$expected, (string)$actual) === 0;
+        $expected=parse_url((string)($this->config['url']??''));
+        $actual=parse_url($origin);
+        if(!$expected||!$actual)return false;
+        $schemeExpected=strtolower((string)($expected['scheme']??''));
+        $schemeActual=strtolower((string)($actual['scheme']??''));
+        $hostExpected=strtolower((string)($expected['host']??''));
+        $hostActual=strtolower((string)($actual['host']??''));
+        $portExpected=(int)($expected['port']??($schemeExpected==='https'?443:80));
+        $portActual=(int)($actual['port']??($schemeActual==='https'?443:80));
+        return $schemeExpected!==''&&$schemeExpected===$schemeActual&&$hostExpected!==''&&$hostExpected===$hostActual&&$portExpected===$portActual;
     }
 }

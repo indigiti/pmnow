@@ -65,7 +65,7 @@ final class SourceService
     {
         $copy=$source; unset($copy['credential_status'],$copy['quota']); $copy['settings']=is_array($copy['settings']??null)?$copy['settings']:[]; $copy['settings']['allow_private_url']=$this->allowPrivateUrls; $copy['credentials']=[];
         if($this->vault){foreach($this->vault->all((string)$source['id']) as $name=>$value)$copy['credentials'][(string)$name]=$value;}
-        foreach(($source['credential_env']??[]) as $name=>$envName){$v=getenv((string)$envName);if($v!==false&&$v!=='')$copy['credentials'][(string)$name]=$v;}
+        foreach(($source['credential_env']??[]) as $name=>$envName){$v=pm_env((string)$envName,null);if($v!==null&&$v!=='')$copy['credentials'][(string)$name]=(string)$v;}
         return $copy;
     }
 

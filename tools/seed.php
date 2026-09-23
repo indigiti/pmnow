@@ -10,10 +10,10 @@ use PuneMirror\Repositories\File\FileStoryRepository;
 $app = require dirname(__DIR__) . '/bootstrap/app.php';
 $root = $app['root'];
 $dataRoot = $root . '/storage/data';
-$environment = strtolower((string)($app['config']['env'] ?? getenv('APP_ENV') ?: 'local'));
+$environment = strtolower((string)($app['config']['env'] ?? pm_env('APP_ENV',null) ?: 'local'));
 $isProduction = $environment === 'production';
 $force = in_array('--force', $argv ?? [], true);
-$adminPassword = (string)(getenv('ADMIN_BOOTSTRAP_PASSWORD') ?: '');
+$adminPassword = (string)(pm_env('ADMIN_BOOTSTRAP_PASSWORD','') ?: '');
 
 if ($isProduction) {
     if ($adminPassword === '' || strlen($adminPassword) < 12 || hash_equals($adminPassword, 'ChangeMe123!')) {
@@ -43,7 +43,7 @@ $make = fn(string $collection, array $data) => $store->put($collection, ['id'=>U
 $adminPassword = $adminPassword !== '' ? $adminPassword : 'ChangeMe123!';
 $make('users', [
     'name'=>'Newsroom Admin',
-    'email'=>getenv('ADMIN_BOOTSTRAP_EMAIL') ?: 'admin@punemirror.local',
+    'email'=>pm_env('ADMIN_BOOTSTRAP_EMAIL','') ?: 'admin@punemirror.local',
     'password_hash'=>password_hash($adminPassword, PASSWORD_DEFAULT),
     'role'=>'super_admin',
     'status'=>'active',
@@ -51,10 +51,10 @@ $make('users', [
 ]);
 
 $source = $make('sources', ['name'=>'Pune Mirror Desk','provider'=>'manual','handle'=>'@punemirror','enabled'=>true,'sync_enabled'=>false,'sync_interval'=>300,'classification_mode'=>'auto','health_status'=>'live','settings'=>[],'credential_env'=>[]]);
-$make('sources', ['name'=>'Pune Mirror WordPress','provider'=>'wordpress','handle'=>'punemirror.com','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>120,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['site_url'=>getenv('WORDPRESS_SITE_URL') ?: 'https://punemirror.com'],'credential_env'=>[]]);
-$make('sources', ['name'=>'Pune Mirror Instagram','provider'=>'instagram','handle'=>'@punemirror','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>180,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['connection_mode'=>'manual_only','account_id'=>getenv('INSTAGRAM_ACCOUNT_ID') ?: ''],'credential_env'=>['access_token'=>'INSTAGRAM_ACCESS_TOKEN']]);
-$make('sources', ['name'=>'Pune Mirror YouTube','provider'=>'youtube','handle'=>'Pune Mirror','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>300,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['channel_id'=>getenv('YOUTUBE_CHANNEL_ID') ?: ''],'credential_env'=>['api_key'=>'YOUTUBE_API_KEY']]);
-$make('sources', ['name'=>'Pune Mirror X','provider'=>'x','handle'=>'@PuneMirror','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>300,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['connection_mode'=>'limited','user_id'=>getenv('X_USER_ID') ?: ''],'credential_env'=>['bearer_token'=>'X_BEARER_TOKEN']]);
+$make('sources', ['name'=>'Pune Mirror WordPress','provider'=>'wordpress','handle'=>'punemirror.com','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>120,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['site_url'=>pm_env('WORDPRESS_SITE_URL','') ?: 'https://punemirror.com'],'credential_env'=>[]]);
+$make('sources', ['name'=>'Pune Mirror Instagram','provider'=>'instagram','handle'=>'@punemirror','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>180,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['connection_mode'=>'manual_only','account_id'=>pm_env('INSTAGRAM_ACCOUNT_ID','') ?: ''],'credential_env'=>['access_token'=>'INSTAGRAM_ACCESS_TOKEN']]);
+$make('sources', ['name'=>'Pune Mirror YouTube','provider'=>'youtube','handle'=>'Pune Mirror','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>300,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['channel_id'=>pm_env('YOUTUBE_CHANNEL_ID','') ?: ''],'credential_env'=>['api_key'=>'YOUTUBE_API_KEY']]);
+$make('sources', ['name'=>'Pune Mirror X','provider'=>'x','handle'=>'@PuneMirror','enabled'=>false,'sync_enabled'=>false,'sync_interval'=>300,'classification_mode'=>'review','health_status'=>'disabled','settings'=>['connection_mode'=>'limited','user_id'=>pm_env('X_USER_ID','') ?: ''],'credential_env'=>['bearer_token'=>'X_BEARER_TOKEN']]);
 
 $cats=[];
 foreach ([['Traffic','traffic'],['Civic','civic'],['Metro','metro'],['Weather','weather'],['Crime','crime'],['Education','education'],['Health','health'],['Business','business'],['Lifestyle','lifestyle'],['Events','events'],['Sports','sports']] as [$name,$slug]) $cats[$slug]=$make('categories',['name'=>$name,'slug'=>$slug]);

@@ -70,6 +70,7 @@ final class ApiController
 
     public function demoLiveUpdate(string $liveId): never
     {
+        if (($this->config['env'] ?? 'local') === 'production') Response::error('NOT_FOUND', 'Route not found', 404);
         $templates = [
             ['Traffic movement improves in central Pune', 'Traffic police report steadily improving movement after the latest diversions.'],
             ['Fresh advisory issued for low-lying roads', 'Commuters are advised to avoid waterlogged internal roads and use main corridors.'],
