@@ -6,31 +6,44 @@ use PuneMirror\Core\JsonStore;
 
 final class FileJobRepository implements JobRepository
 {
-    public function __construct(private readonly JsonStore $store) {}
-    public function save(array $job): array { return $this->store->put('jobs', $job); }
-    public function find(string $id): ?array { return $this->store->get('jobs', $id); }
-    public function all(): array
+    public function __construct(private readonly JsonStore $store){}
+    public function save(array $job):array{return $this->store->put('jobs',$job);}
+    public function find(string $id):?array{return $this->store->get('jobs',$id);}
+    public function all():array
     {
-        $rows = $this->store->all('jobs');
-        usort($rows, fn($a,$b) => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
+        $rows=$this->store->all('jobs');
+        usort($rows,fn($a,$b)=>strcmp((string)($b['created_at']??''),(string)($a['created_at']??'')));
         return $rows;
     }
-    public function nextQueued(): ?array
+    public function nextQueued():?array
     {
-        $rows = array_values(array_filter($this->all(), fn($r) => ($r['status'] ?? '') === 'queued'));
-        usort($rows, fn($a,$b) => strcmp((string)($a['available_at'] ?? $a['created_at'] ?? ''), (string)($b['available_at'] ?? $b['created_at'] ?? '')));
-        $now = gmdate('c');
-        foreach ($rows as $row) {
-            if (($row['available_at'] ?? '') === '' || strcmp((string)$row['available_at'], $now) <= 0) return $row;
-        }
+        $rows=array_values(array_filter($this->all(),fn($r)=>($r['status']??'')==='queued'));
+        usort($rows,fn($a,$b)=>strcmp((string)($a['available_at']??$a['created_at']??''),(string)($b['available_at']??$b['created_at']??'')));
+        $now=gmdate('c');
+        foreach($rows as $row)if(($row['available_at']??'')===''||strcmp((string)$row['available_at'],$now)<=0)return $row;
         return null;
     }
-    public function hasPending(string $type, ?string $subjectId = null): bool
+    public function claimNext():?array
     {
-        foreach ($this->all() as $row) {
-            if (($row['type'] ?? '') !== $type) continue;
-            if (!in_array(($row['status'] ?? ''), ['queued','processing'], true)) continue;
-            if ($subjectId !== null && ($row['subject_id'] ?? null) !== $subjectId) continue;
+        $dir=$this->store->rootPath().'/jobs';
+        if(!is_dir($dir))return null;
+        $lock=fopen($dir.'/.claim.lock','c+');
+        if(!$lock)throw new \RuntimeException('Cannot open job claim lock');
+        try{
+            if(!flock($lock,LOCK_EX))throw new \RuntimeException('Cannot lock job queue');
+            $job=$this->nextQueued();if(!$job)return null;
+            $job['status']='processing';
+            $job['started_at']=gmdate('c');
+            $job['attempts']=(int)($job['attempts']??0)+1;
+            return $this->save($job);
+        }finally{@flock($lock,LOCK_UN);@fclose($lock);}
+    }
+    public function hasPending(string $type,?string $subjectId=null):bool
+    {
+        foreach($this->all() as $row){
+            if(($row['type']??'')!==$type)continue;
+            if(!in_array(($row['status']??''),['queued','processing'],true))continue;
+            if($subjectId!==null&&($row['subject_id']??null)!==$subjectId)continue;
             return true;
         }
         return false;

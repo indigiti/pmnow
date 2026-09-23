@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-import httpx
-
 from .base import ContentProvider, ProviderError, ProviderResult
 from engine.normalize.contract import normalized_content
 from engine.normalize.utils import media_item
+from engine.security.url_guard import safe_get
 
 
 class InstagramProvider(ContentProvider):
@@ -59,10 +58,14 @@ class InstagramProvider(ContentProvider):
         params: dict[str, Any] = {"fields": fields, "limit": max(1, min(50, limit)), "access_token": token}
         if cursor:
             params["after"] = cursor
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url, params=params)
-            response.raise_for_status()
-            payload = response.json()
+        response = await safe_get(
+            url,
+            params=params,
+            timeout=15.0,
+            allowed_hosts={"graph.facebook.com", "graph.instagram.com"},
+        )
+        response.raise_for_status()
+        payload = response.json()
         rows = payload.get("data") or []
         next_cursor = (((payload.get("paging") or {}).get("cursors") or {}).get("after"))
         return ProviderResult(rows, next_cursor, {"count": len(rows)})

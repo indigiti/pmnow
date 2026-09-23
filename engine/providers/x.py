@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-import httpx
-
 from .base import ContentProvider, ProviderError, ProviderResult
 from engine.normalize.contract import normalized_content
 from engine.normalize.utils import media_item
+from engine.security.url_guard import safe_get
 
 
 class XProvider(ContentProvider):
@@ -57,10 +56,15 @@ class XProvider(ContentProvider):
         }
         if cursor:
             params["pagination_token"] = cursor
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url, headers=headers, params=params)
-            response.raise_for_status()
-            payload = response.json()
+        response = await safe_get(
+            url,
+            headers=headers,
+            params=params,
+            timeout=15.0,
+            allowed_hosts={"api.x.com", "api.twitter.com"},
+        )
+        response.raise_for_status()
+        payload = response.json()
         media_by_key = {m.get("media_key"): m for m in ((payload.get("includes") or {}).get("media") or [])}
         rows = []
         for tweet in payload.get("data") or []:

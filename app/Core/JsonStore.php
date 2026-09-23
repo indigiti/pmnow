@@ -6,6 +6,7 @@ use RuntimeException;
 final class JsonStore
 {
     public function __construct(private readonly string $root) {}
+    public function rootPath(): string { return $this->root; }
 
     public function get(string $collection, string $id): ?array
     {

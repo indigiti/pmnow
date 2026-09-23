@@ -94,6 +94,17 @@ final class SourceService
     private function validateSettings(string $provider,array $settings):void
     {
         if($provider==='wordpress'&&!empty($settings['site_url']))UrlGuard::assertPublicHttpUrl((string)$settings['site_url'],$this->allowPrivateUrls);
+        if(!empty($settings['api_base'])){
+            $url=UrlGuard::assertPublicHttpUrl((string)$settings['api_base'],$this->allowPrivateUrls);
+            $host=strtolower((string)(parse_url($url,PHP_URL_HOST)??''));
+            $allowed=match($provider){
+                'instagram'=>['graph.facebook.com','graph.instagram.com'],
+                'youtube'=>['www.googleapis.com'],
+                'x'=>['api.x.com','api.twitter.com'],
+                default=>[],
+            };
+            if(!$allowed||!in_array($host,$allowed,true))throw new RuntimeException('Custom API host is not allowed for provider '.$provider);
+        }
     }
     private function recordUsage(array $source,int $calls):void{$this->quota?->record((string)$source['id'],$calls,(int)($source['settings']['quota_soft_limit']??1000));}
 }

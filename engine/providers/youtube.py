@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-import httpx
-
 from .base import ContentProvider, ProviderError, ProviderResult
 from engine.normalize.contract import normalized_content
 from engine.normalize.utils import media_item
+from engine.security.url_guard import safe_get
 
 
 class YouTubeProvider(ContentProvider):
@@ -21,13 +20,15 @@ class YouTubeProvider(ContentProvider):
             errors.append("credentials.api_key is required")
         return errors
 
-    async def _uploads_playlist(self, source: dict[str, Any], client: httpx.AsyncClient) -> str:
+    async def _uploads_playlist(self, source: dict[str, Any]) -> str:
         settings = source.get("settings") or {}
         base = str(settings.get("api_base") or "https://www.googleapis.com").rstrip("/")
         key = source["credentials"]["api_key"]
-        response = await client.get(
+        response = await safe_get(
             f"{base}/youtube/v3/channels",
             params={"part": "contentDetails", "id": settings["channel_id"], "key": key},
+            timeout=12.0,
+            allowed_hosts={"www.googleapis.com"},
         )
         response.raise_for_status()
         items = response.json().get("items") or []
@@ -40,8 +41,7 @@ class YouTubeProvider(ContentProvider):
         if errors:
             return {"ok": False, "provider": self.name, "errors": errors}
         try:
-            async with httpx.AsyncClient(timeout=12.0) as client:
-                playlist = await self._uploads_playlist(source, client)
+            playlist = await self._uploads_playlist(source)
             return {"ok": True, "provider": self.name, "uploads_playlist": playlist}
         except Exception as exc:
             return {"ok": False, "provider": self.name, "errors": [str(exc)]}
@@ -53,19 +53,23 @@ class YouTubeProvider(ContentProvider):
         settings = source.get("settings") or {}
         base = str(settings.get("api_base") or "https://www.googleapis.com").rstrip("/")
         key = source["credentials"]["api_key"]
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            playlist = await self._uploads_playlist(source, client)
-            params: dict[str, Any] = {
+        playlist = await self._uploads_playlist(source)
+        params: dict[str, Any] = {
                 "part": "snippet,contentDetails",
                 "playlistId": playlist,
                 "maxResults": max(1, min(50, limit)),
                 "key": key,
             }
-            if cursor:
-                params["pageToken"] = cursor
-            response = await client.get(f"{base}/youtube/v3/playlistItems", params=params)
-            response.raise_for_status()
-            payload = response.json()
+        if cursor:
+            params["pageToken"] = cursor
+        response = await safe_get(
+            f"{base}/youtube/v3/playlistItems",
+            params=params,
+            timeout=15.0,
+            allowed_hosts={"www.googleapis.com"},
+        )
+        response.raise_for_status()
+        payload = response.json()
         return ProviderResult(payload.get("items") or [], payload.get("nextPageToken"), {"count": len(payload.get("items") or [])})
 
     def normalize(self, source: dict[str, Any], raw: dict[str, Any]) -> dict[str, Any]:
