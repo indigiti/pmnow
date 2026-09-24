@@ -55,7 +55,16 @@ final class CommunityService
 
     public function moderationQueue():array
     {
-        return array_values(array_filter($this->store->all('community-posts'),fn($r)=>($r['status']??'pending')==='pending'));
+        $rows=array_values(array_filter($this->store->all('community-posts'),fn($r)=>($r['status']??'pending')==='pending'));
+        usort($rows,fn($a,$b)=>strcmp((string)($b['created_at']??''),(string)($a['created_at']??'')));
+        return $rows;
+    }
+
+    public function reports():array
+    {
+        $rows=$this->store->all('community-reports');
+        usort($rows,fn($a,$b)=>strcmp((string)($b['created_at']??''),(string)($a['created_at']??'')));
+        return $rows;
     }
 
     public function types():array{return self::TYPES;}
