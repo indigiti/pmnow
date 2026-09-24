@@ -124,7 +124,7 @@ test('M11 alert preferences and channel feed are browser-safe', async ({ page, r
   const form=page.locator('[data-notification-preferences]');
   await expect(form).toBeVisible();
   const morning=form.locator('input[name="morning_digest"]');
-  if(!(await morning.isChecked())) await form.locator('label.setting-row',{has:morning}).click();
+  if(!(await morning.isChecked())) await morning.check();
   await form.locator('button[type="submit"]').click();
   await expect(page.locator('[data-notification-status]')).toHaveText('Saved');
 
