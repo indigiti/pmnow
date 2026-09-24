@@ -18,9 +18,11 @@ final class Request
         $base=(string)pm_env('APP_BASE_PATH','');
         $base='/' . trim($base,'/'); if($base==='/')$base='';
         if($base===''){
-            $scriptPath=(string)($_SERVER['SCRIPT_NAME']??'');
-            $scriptDir=rtrim(str_replace('\\','/',dirname($scriptPath)),'/');
-            if($scriptDir!=='' && $scriptDir!=='.' && $scriptDir!=='/') $base=$scriptDir;
+            $scriptPath=str_replace('\\','/',(string)($_SERVER['SCRIPT_NAME']??''));
+            if(basename($scriptPath)==='index.php'){
+                $scriptDir=rtrim(dirname($scriptPath),'/');
+                if($scriptDir!=='' && $scriptDir!=='.' && $scriptDir!=='/') $base=$scriptDir;
+            }
         }
         if($base!=='' && ($path===$base || str_starts_with($path,$base.'/'))){
             $path=substr($path,strlen($base)) ?: '/';
