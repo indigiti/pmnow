@@ -4,10 +4,11 @@ namespace PuneMirror\Controllers;
 use PuneMirror\Contracts\StoryRepository;
 use PuneMirror\Core\JsonStore;
 use PuneMirror\Services\StoryService;
+use PuneMirror\Services\DistributionService;
 
 final class DiscoveryController
 {
-    public function __construct(private readonly StoryRepository $stories,private readonly StoryService $storyService,private readonly JsonStore $store){}
+    public function __construct(private readonly StoryRepository $stories,private readonly StoryService $storyService,private readonly JsonStore $store,private readonly ?DistributionService $distribution=null){}
 
     public function robots():never
     {
@@ -65,6 +66,19 @@ final class DiscoveryController
             echo '<item><title>'.$this->x((string)$story['headline']).'</title><link>'.$this->x(pm_absolute_url(pm_story_path($story))).'</link><guid isPermaLink="true">'.$this->x(pm_absolute_url(pm_story_path($story))).'</guid><pubDate>'.gmdate(DATE_RSS,strtotime((string)($story['published_at']??'now'))).'</pubDate><description>'.$this->x((string)($story['deck']??'')).'</description></item>';
         }
         echo '</channel></rss>';exit;
+    }
+
+    public function channel(string $channel):never
+    {
+        if(!$this->distribution){http_response_code(503);header('Content-Type: application/json; charset=utf-8');echo json_encode(['error'=>'distribution_unavailable']);exit;}
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: public, max-age=60');
+        echo json_encode([
+            'channel'=>$channel,
+            'generated_at'=>gmdate('c'),
+            'items'=>$this->distribution->channelFeed(20),
+        ],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     private function x(string $value):string{return htmlspecialchars($value,ENT_XML1|ENT_QUOTES,'UTF-8');}

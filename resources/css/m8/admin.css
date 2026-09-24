@@ -17,3 +17,7 @@
   .admin-user{display:none}.admin-main{padding:18px 14px 32px}.admin-top{align-items:flex-start}.admin-top h1{font-size:27px}
   .admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-table{min-width:720px}
 }
+
+.distribution-actions{display:flex;gap:6px;flex-wrap:wrap}.distribution-actions button{white-space:nowrap}
+.distribution-contracts{margin-top:18px}.channel-contract-grid{display:flex;gap:10px;flex-wrap:wrap;padding:16px 17px}.channel-contract-grid a{border:1px solid var(--pm-line);border-radius:10px;padding:10px 12px;font-weight:750}
+.distribution-contracts>p{padding:0 17px 16px;color:var(--pm-muted)}

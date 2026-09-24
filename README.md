@@ -70,3 +70,8 @@ M8.1 adds browser-level certification, cursor feed pagination, a privacy-conscio
 ## Phase 1 growth roadmap
 
 PMNow now carries the M8.1 growth-engineering foundation and the first M9/M10 implementation. Public stories use SEO-friendly canonical URLs, Google News-compatible discovery feeds, and NewsArticle metadata. My Pune stores reader-selected neighbourhoods/topics in the existing No-DB user repository and uses them in a deterministic For You ranking. PostgreSQL remains deliberately deferred until M18.
+
+
+## M11 distribution foundation
+
+M11 adds reader-controlled breaking, neighbourhood and topic alerts; Morning/Evening/Weekend briefing jobs; idempotent in-app delivery; newsroom distribution controls; channel-ready JSON feeds; and a Web Push subscription/service-worker contract. External Web Push encryption and messaging-provider transports remain credentialed adapters rather than hidden dependencies, so PMNow continues to run fully in No-DB/file mode without third-party services.

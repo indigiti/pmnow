@@ -13,12 +13,13 @@ use PuneMirror\Services\UserStateService;
 use PuneMirror\Services\WorkerService;
 use PuneMirror\Services\ErrorCenterService;
 use PuneMirror\Services\SystemHealthService;
+use PuneMirror\Services\DistributionService;
 
 final class NewsroomApiController
 {
     public function __construct(
         private readonly AdminAuthService $auth,private readonly EditorialService $editorial,private readonly JobRepository $jobs,private readonly SchedulerService $scheduler,private readonly WorkerService $worker,private readonly SearchIndexService $search,private readonly NotificationService $notifications,private readonly UserStateService $users,
-        private readonly ?ErrorCenterService $errors=null,private readonly ?SystemHealthService $health=null
+        private readonly ?ErrorCenterService $errors=null,private readonly ?SystemHealthService $health=null,private readonly ?DistributionService $distribution=null
     ){}
     public function login(Request $r):never{$ok=$this->auth->login((string)($r->body['email']??''),(string)($r->body['password']??''));if(!$ok)Response::error('LOGIN_FAILED','Invalid credentials',401);Response::json($this->auth->user());}
     public function logout():never{$this->auth->logout();Response::json(['logged_out'=>true]);}
@@ -34,6 +35,20 @@ final class NewsroomApiController
     public function systemHealth():never{$this->guard('system.view');Response::json($this->health?->report()??['status'=>'unknown']);}
     public function errors():never{$this->guard('system.view');Response::json($this->errors?->all()??[]);}
     public function resolveError(string $id):never{$this->guard('system.view');$r=$this->errors?->resolve($id);if(!$r)Response::error('ERROR_NOT_FOUND','Error record not found',404);Response::json($r);}
+    public function distributeAlert(Request $r):never
+    {
+        $this->guard('distribution.manage');
+        if(!$this->distribution)Response::error('DISTRIBUTION_UNAVAILABLE','Distribution service unavailable',503);
+        try{
+            Response::json($this->distribution->alertStory(
+                (string)($r->body['story_id']??''),
+                (string)($r->body['kind']??'breaking'),
+                isset($r->body['title'])?(string)$r->body['title']:null,
+                isset($r->body['body'])?(string)$r->body['body']:null
+            ));
+        }catch(\Throwable $e){Response::error('DISTRIBUTION_FAILED',$e->getMessage(),422);}
+    }
+
     public function notifications():never{$u=$this->users->currentUser();Response::json($this->notifications->forUser((string)$u['id']));}
     public function markNotificationRead(string $id):never{$u=$this->users->currentUser();$r=$this->notifications->markRead((string)$u['id'],$id);if(!$r)Response::error('NOTIFICATION_NOT_FOUND','Notification not found',404);Response::json($r);}
     private function guard(string $p):array{try{return $this->auth->require($p);}catch(\Throwable){Response::error('ADMIN_AUTH_REQUIRED','Admin authentication or permission required',401);}}

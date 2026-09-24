@@ -116,3 +116,26 @@ test('M10 Near You surface reflects selected neighbourhoods', async ({ page }) =
   await expect(page.locator('#nearYouFeed .story').first()).toBeVisible();
   await expect(page.locator('#nearYouFeed .story').first()).toContainText('Pune food street');
 });
+
+
+test('M11 alert preferences and channel feed are browser-safe', async ({ page, request }) => {
+  const errors=[];page.on('pageerror',err=>errors.push(err.message));
+  await page.goto('/profile');
+  const form=page.locator('[data-notification-preferences]');
+  await expect(form).toBeVisible();
+  const morning=form.locator('input[name="morning_digest"]');
+  if(!(await morning.isChecked())) await form.locator('label.setting-row',{has:morning}).click();
+  await form.locator('button[type="submit"]').click();
+  await expect(page.locator('[data-notification-status]')).toHaveText('Saved');
+
+  const me=await page.request.get('/api/v1/me');const state=await me.json();
+  expect(state.data.user.notification_preferences.morning_digest).toBeTruthy();
+
+  const channel=await request.get('/channels/whatsapp.json');
+  expect(channel.ok()).toBeTruthy();
+  const payload=await channel.json();
+  expect(payload.channel).toBe('whatsapp');
+  expect(payload.items.length).toBeGreaterThan(0);
+  expect(payload.items[0].url).toContain('/pune/');
+  expect(errors).toEqual([]);
+});

@@ -97,3 +97,20 @@
 - [x] saved-story retrieval independent of latest-feed window
 - [x] dedicated Near You surface
 - [x] newsroom analytics for preference/retention cohorts
+
+
+## M11 — Distribution Engine — IN PROGRESS
+- [x] reader notification preference model
+- [x] breaking-alert targeting
+- [x] neighbourhood alert targeting from My Pune areas
+- [x] topic alert targeting from My Pune topics
+- [x] idempotent in-app distribution
+- [x] Morning / Evening / Weekend digest primitives
+- [x] scheduler + worker digest job contracts
+- [x] newsroom distribution controls
+- [x] WhatsApp-ready and Telegram-ready JSON channel feeds
+- [x] Web Push subscription registry + service worker contract
+- [x] browser and PHP M11 regression coverage
+- [ ] Web Push encrypted sending transport with private VAPID credentials
+- [ ] WhatsApp/Telegram provider delivery adapters and credentials
+- [ ] production delivery-rate / unsubscribe telemetry

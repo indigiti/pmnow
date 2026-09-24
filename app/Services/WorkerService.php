@@ -5,13 +5,16 @@ use PuneMirror\Contracts\JobRepository;
 
 final class WorkerService
 {
-    public function __construct(private readonly JobRepository $jobs,private readonly ContentHubService $hub,private readonly ?ErrorCenterService $errors=null){}
+    public function __construct(private readonly JobRepository $jobs,private readonly ContentHubService $hub,private readonly ?ErrorCenterService $errors=null,private readonly ?DistributionService $distribution=null){}
     public function runNext():?array
     {
         $job=$this->jobs->claimNext();if(!$job)return null;
         try{
             $result=match($job['type']??''){
                 'SOURCE_SYNC'=>$this->hub->syncSource((string)($job['payload']['source_id']??$job['subject_id']),(int)($job['payload']['limit']??10),null),
+                'READER_DIGEST_MORNING','READER_DIGEST_EVENING','READER_DIGEST_WEEKEND'=>$this->distribution
+                    ? $this->distribution->deliverDigest((string)($job['payload']['user_id']??$job['subject_id']),(string)($job['payload']['period']??'morning'))
+                    : throw new \RuntimeException('Distribution service unavailable'),
                 default=>throw new \RuntimeException('Unsupported job type')
             };
             $job['status']='completed';$job['completed_at']=gmdate('c');$job['result']=$result;$job['last_error']=null;

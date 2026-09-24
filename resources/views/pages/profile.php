@@ -24,6 +24,21 @@
       </fieldset>
       <div class="preference-actions"><button class="btn red" type="submit">Save My Pune</button><span class="pm-muted" data-preference-status></span></div>
     </form>
+    <?php $np=array_merge(['enabled'=>true,'breaking'=>true,'following'=>true,'area_alerts'=>true,'topic_alerts'=>true,'morning_digest'=>false,'evening_digest'=>false,'weekend_digest'=>false,'timezone'=>'Asia/Kolkata'],(array)($state['user']['notification_preferences']??[])); ?>
+    <form class="notification-preferences" data-notification-preferences>
+      <div class="pref-section-head"><div><span class="pm-kicker">Distribution</span><h2>Alerts & briefings</h2></div><span class="pm-muted">Your control</span></div>
+      <label class="setting-row"><span><b>Notifications</b><small>Master switch for PMNow alerts.</small></span><input type="checkbox" name="enabled" <?=$np['enabled']?'checked':''?>></label>
+      <label class="setting-row"><span><b>Breaking Pune</b><small>Major city-wide breaking updates.</small></span><input type="checkbox" name="breaking" <?=$np['breaking']?'checked':''?>></label>
+      <label class="setting-row"><span><b>My neighbourhoods</b><small>Alerts matching areas selected above.</small></span><input type="checkbox" name="area_alerts" <?=$np['area_alerts']?'checked':''?>></label>
+      <label class="setting-row"><span><b>My topics</b><small>Alerts matching topics selected above.</small></span><input type="checkbox" name="topic_alerts" <?=$np['topic_alerts']?'checked':''?>></label>
+      <div class="digest-grid">
+        <label class="setting-row"><span><b>Morning Pune</b><small>07:00–10:00</small></span><input type="checkbox" name="morning_digest" <?=$np['morning_digest']?'checked':''?>></label>
+        <label class="setting-row"><span><b>Evening Pune</b><small>17:00–21:00</small></span><input type="checkbox" name="evening_digest" <?=$np['evening_digest']?'checked':''?>></label>
+        <label class="setting-row"><span><b>Weekend Pune</b><small>Weekend morning briefing</small></span><input type="checkbox" name="weekend_digest" <?=$np['weekend_digest']?'checked':''?>></label>
+      </div>
+      <input type="hidden" name="timezone" value="<?=pm_e($np['timezone']??'Asia/Kolkata')?>">
+      <div class="preference-actions"><button class="btn red" type="submit">Save alerts</button><button class="btn" type="button" data-enable-push>Enable browser push</button><span class="pm-muted" data-notification-status></span></div>
+    </form>
   </section>
   <section class="sect"><div class="secttitle"><div><span class="pm-kicker">Library</span><h2>Saved stories</h2></div><span class="link"><?= count($saved) ?> saved</span></div></section>
   <section class="saved-list"><?php if(!$saved): ?><div class="empty">Save a story from Home, Gallery, Live or Watch and it will appear here.</div><?php endif; ?><?php foreach($saved as $story): $m=$story['media'][0]??null; ?><a class="saved-row" href="<?= pm_e(pm_story_path($story)) ?>"><img src="<?= pm_e(pm_media($m)) ?>" alt="<?=pm_e($story['headline']??'Saved Pune story')?>" loading="lazy"><div><small><?= pm_e($story['categories'][0]['name']??'Pune') ?></small><h3><?= pm_e($story['headline']) ?></h3><small><?=pm_icon('pin','sm')?> <?= pm_e($story['locations'][0]['name']??'Pune') ?></small></div></a><?php endforeach; ?></section>

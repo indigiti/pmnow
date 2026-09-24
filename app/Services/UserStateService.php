@@ -20,6 +20,10 @@ final class UserStateService
             'email' => null,
             'role' => 'reader',
             'preferences' => ['city' => 'Pune', 'areas' => [], 'channels' => []],
+            'notification_preferences'=>[
+                'enabled'=>true,'breaking'=>true,'following'=>true,'area_alerts'=>true,'topic_alerts'=>true,
+                'morning_digest'=>false,'evening_digest'=>false,'weekend_digest'=>false,'timezone'=>'Asia/Kolkata'
+            ],
         ]);
         Session::put('user_id', $user['id']);
         return $user;
@@ -56,6 +60,23 @@ final class UserStateService
             'areas'=>$areas,
             'channels'=>$channels,
         ];
+        return $this->repo->saveUser($user);
+    }
+
+    public function updateNotificationPreferences(array $preferences):array
+    {
+        $user=$this->currentUser();
+        $current=array_merge([
+            'enabled'=>true,'breaking'=>true,'following'=>true,'area_alerts'=>true,'topic_alerts'=>true,
+            'morning_digest'=>false,'evening_digest'=>false,'weekend_digest'=>false,'timezone'=>'Asia/Kolkata'
+        ],(array)($user['notification_preferences']??[]));
+        foreach(['enabled','breaking','following','area_alerts','topic_alerts','morning_digest','evening_digest','weekend_digest'] as $field){
+            if(array_key_exists($field,$preferences))$current[$field]=(bool)$preferences[$field];
+        }
+        if(isset($preferences['timezone'])&&is_string($preferences['timezone'])){
+            try{new \DateTimeZone($preferences['timezone']);$current['timezone']=$preferences['timezone'];}catch(\Throwable){}
+        }
+        $user['notification_preferences']=$current;
         return $this->repo->saveUser($user);
     }
 

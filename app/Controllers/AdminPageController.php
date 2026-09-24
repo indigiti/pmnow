@@ -20,6 +20,7 @@ final class AdminPageController
     public function inbox():never{$u=$this->requireUser();$this->page('admin/inbox',['adminUser'=>$u,'items'=>$this->editorial->inbox(),'metrics'=>$this->editorial->metrics()]);}
     public function sources():never{$u=$this->requireUser();$this->page('admin/sources',['adminUser'=>$u,'sources'=>$this->sources->all()]);}
     public function jobs():never{$u=$this->requireUser();$this->page('admin/jobs',['adminUser'=>$u,'jobs'=>$this->jobs->all()]);}
+    public function distribution():never{$u=$this->requireUser();$rows=array_values(array_filter($this->store->all('stories'),fn($s)=>($s['status']??'')==='published'));usort($rows,fn($a,$b)=>strcmp((string)($b['published_at']??$b['created_at']??''),(string)($a['published_at']??$a['created_at']??'')));$this->page('admin/distribution',['adminUser'=>$u,'stories'=>array_slice($rows,0,30)]);}
     public function notifications():never{$u=$this->requireUser();$rows=$this->store->all('notifications');usort($rows,fn($a,$b)=>strcmp((string)($b['created_at']??''),(string)($a['created_at']??'')));$this->page('admin/notifications',['adminUser'=>$u,'notifications'=>$rows]);}
     public function system():never{$u=$this->requireUser();$this->page('admin/system',['adminUser'=>$u,'health'=>$this->health?->report()??[],'sources'=>$this->sources->all()]);}
     public function errors():never{$u=$this->requireUser();$this->page('admin/errors',['adminUser'=>$u,'errors'=>$this->errors?->all()??[]]);}

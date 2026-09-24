@@ -5,6 +5,7 @@ $nav=[
   ['/admin/inbox','grid','Editorial Inbox'],
   ['/admin/sources','external','Sources'],
   ['/admin/jobs','follow','Jobs & Scheduler'],
+  ['/admin/distribution','bell','Distribution'],
   ['/admin/system','heart','System Health'],
   ['/admin/errors','bell','Error Center'],
   ['/admin/notifications','bell','Notifications'],

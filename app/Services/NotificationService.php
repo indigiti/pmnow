@@ -15,16 +15,26 @@ final class NotificationService
         return array_slice($rows, 0, $limit);
     }
 
+    public function notifyUser(string $userId,string $type,string $title,string $body='',?string $storyId=null,?string $distributionKey=null,array $meta=[]):?array
+    {
+        if($distributionKey){
+            foreach($this->store->all('notifications') as $row){
+                if(($row['user_id']??'')===$userId&&($row['distribution_key']??'')===$distributionKey)return null;
+            }
+        }
+        return $this->store->put('notifications',[
+            'id'=>UuidV7::generate(),'user_id'=>$userId,'story_id'=>$storyId,
+            'type'=>$type,'title'=>$title,'body'=>$body,'read_at'=>null,
+            'distribution_key'=>$distributionKey,'meta'=>$meta,
+        ]);
+    }
+
     public function notifyFollowers(string $storyId, string $type, string $title, string $body = ''): int
     {
         $count = 0;
         foreach ($this->store->all('follows') as $follow) {
             if (($follow['story_id'] ?? '') !== $storyId) continue;
-            $this->store->put('notifications', [
-                'id'=>UuidV7::generate(), 'user_id'=>$follow['user_id'], 'story_id'=>$storyId,
-                'type'=>$type, 'title'=>$title, 'body'=>$body, 'read_at'=>null,
-            ]);
-            $count++;
+            if($this->notifyUser((string)$follow['user_id'],$type,$title,$body,$storyId,'follow:'.$type.':'.$storyId))$count++;
         }
         return $count;
     }

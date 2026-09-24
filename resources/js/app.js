@@ -189,6 +189,47 @@ window.gsap = gsap;
     });
   }
 
+  const notifyForm=$('[data-notification-preferences]');
+  if(notifyForm){
+    notifyForm.addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const status=$('[data-notification-status]',notifyForm);
+      const payload={timezone:$('[name="timezone"]',notifyForm)?.value||'Asia/Kolkata'};
+      for(const name of ['enabled','breaking','area_alerts','topic_alerts','morning_digest','evening_digest','weekend_digest']){
+        payload[name]=!!$('[name="'+name+'"]',notifyForm)?.checked;
+      }
+      if(status)status.textContent='Saving…';
+      try{
+        await api('/api/v1/me/notification-preferences',{method:'PATCH',body:JSON.stringify(payload)});
+        if(status)status.textContent='Saved';
+        toast('Alert preferences updated');
+      }catch(err){if(status)status.textContent='Could not save';toast(err.message);}
+    });
+  }
+
+  const b64ToUint8=(value='')=>{
+    const padding='='.repeat((4-value.length%4)%4);
+    const raw=atob((value+padding).replace(/-/g,'+').replace(/_/g,'/'));
+    return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+  };
+  $('[data-enable-push]')?.addEventListener('click',async(e)=>{
+    const button=e.currentTarget;
+    const status=$('[data-notification-status]');
+    const vapid=$('meta[name="push-vapid-key"]')?.content||'';
+    if(!('serviceWorker'in navigator)||!('PushManager'in window)){if(status)status.textContent='Push is not supported in this browser';return;}
+    if(!vapid){if(status)status.textContent='Browser push transport is not configured yet';return;}
+    button.disabled=true;
+    try{
+      const permission=await Notification.requestPermission();
+      if(permission!=='granted')throw new Error('Notification permission was not granted');
+      const registration=await navigator.serviceWorker.register(urlFor('/sw.js'),{scope:urlFor('/')});
+      const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToUint8(vapid)});
+      await api('/api/v1/me/push-subscriptions',{method:'POST',body:JSON.stringify({subscription:subscription.toJSON()})});
+      if(status)status.textContent='Browser push registered';
+      toast('Browser push registered');
+    }catch(err){if(status)status.textContent=err.message;toast(err.message);}finally{button.disabled=false;}
+  });
+
   const storyId=$('meta[name="pm-story-id"]')?.content||'';
   if(storyId){
     analyticsTrack('story_open',{story_id:storyId,path:location.pathname});

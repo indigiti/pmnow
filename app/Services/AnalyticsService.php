@@ -8,7 +8,7 @@ final class AnalyticsService
 {
     private const EVENTS=[
         'page_view','story_impression','story_open','story_read_25','story_read_50','story_read_90',
-        'share','bookmark','follow','search','notification_open','reel_view','gallery_complete','preference_update','near_you_open'
+        'share','bookmark','follow','search','notification_open','reel_view','gallery_complete','preference_update','near_you_open','notification_preferences_update','push_subscribe','digest_delivered','notification_open'
     ];
 
     public function __construct(private readonly JsonStore $store) {}

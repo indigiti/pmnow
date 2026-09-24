@@ -22,4 +22,11 @@
   const credentialDialog=q('[data-credential-dialog]'); qa('[data-open-credential]').forEach(b=>b.addEventListener('click',()=>{q('[name=source_id]',credentialDialog).value=b.dataset.openCredential;credentialDialog?.showModal();})); q('[data-save-credential]')?.addEventListener('click',async e=>{e.preventDefault();const f=q('[data-credential-form]');const d=Object.fromEntries(new FormData(f));try{await api(`/api/admin/sources/${d.source_id}/credentials`,{method:'POST',body:JSON.stringify({credentials:{[d.credential_name]:d.credential_value}})});credentialDialog.close();toast('Credential encrypted and stored');location.reload();}catch(err){toast(err.message);}});
   qa('[data-resolve-error]').forEach(b=>b.addEventListener('click',async()=>{try{await api(`/api/admin/errors/${b.dataset.resolveError}/resolve`,{method:'POST',body:'{}'});location.reload();}catch(e){toast(e.message);}}));
   q('[data-refresh-health]')?.addEventListener('click',async()=>{try{await api('/api/admin/system/health');location.reload();}catch(e){toast(e.message);}});
+  qa('[data-distribute-story]').forEach(b=>b.addEventListener('click',async()=>{
+    b.disabled=true;
+    try{
+      const result=await api('/api/admin/distribution/alerts',{method:'POST',body:JSON.stringify({story_id:b.dataset.distributeStory,kind:b.dataset.distributionKind})});
+      toast(`Sent ${result.sent||0} alert(s) to ${result.matched||0} eligible reader(s)`);
+    }catch(e){toast(e.message);}finally{b.disabled=false;}
+  }));
 })();

@@ -14,6 +14,7 @@ $robots=(string)($seo['robots']??'index,follow,max-image-preview:large');
 <meta name="theme-color" content="#ffffff">
 <meta name="app-base-path" content="<?=pm_e(pm_base_path())?>">
 <meta name="csrf-token" content="<?= pm_e(\PuneMirror\Core\Session::csrfToken()) ?>">
+<meta name="push-vapid-key" content="<?=pm_e((string)pm_env('PUSH_VAPID_PUBLIC_KEY',''))?>">
 <?php if(isset($story['id'])): ?><meta name="pm-story-id" content="<?=pm_e($story['id'])?>"><?php endif; ?>
 <title><?=pm_e($title)?></title>
 <meta name="description" content="<?=pm_e($description)?>">

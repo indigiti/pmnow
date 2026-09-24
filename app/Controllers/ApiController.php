@@ -12,6 +12,7 @@ use PuneMirror\Services\SearchIndexService;
 use PuneMirror\Services\NotificationService;
 use PuneMirror\Services\AnalyticsService;
 use PuneMirror\Services\PersonalizationService;
+use PuneMirror\Services\PushSubscriptionService;
 
 final class ApiController
 {
@@ -24,7 +25,8 @@ final class ApiController
         private readonly SearchIndexService $searchIndex,
         private readonly NotificationService $notifications,
         private readonly AnalyticsService $analytics,
-        private readonly PersonalizationService $personalization
+        private readonly PersonalizationService $personalization,
+        private readonly ?PushSubscriptionService $pushSubscriptions=null
     ) {}
 
     public function health(): never
@@ -117,6 +119,37 @@ final class ApiController
             'topics_count'=>count((array)($prefs['channels']??[])),
         ]);
         Response::json(['preferences'=>$prefs]);
+    }
+
+    public function updateNotificationPreferences(Request $request):never
+    {
+        $user=$this->users->updateNotificationPreferences((array)$request->body);
+        $prefs=(array)($user['notification_preferences']??[]);
+        $this->analytics->track((string)$user['id'],'notification_preferences_update',[
+            'enabled'=>(bool)($prefs['enabled']??true),
+            'morning_digest'=>(bool)($prefs['morning_digest']??false),
+            'evening_digest'=>(bool)($prefs['evening_digest']??false),
+            'weekend_digest'=>(bool)($prefs['weekend_digest']??false),
+        ]);
+        Response::json(['notification_preferences'=>$prefs]);
+    }
+
+    public function savePushSubscription(Request $request):never
+    {
+        if(!$this->pushSubscriptions)Response::error('PUSH_UNAVAILABLE','Push subscription registry unavailable',503);
+        $user=$this->users->currentUser();
+        try{
+            $row=$this->pushSubscriptions->save((string)$user['id'],(array)($request->body['subscription']??$request->body));
+            $this->analytics->track((string)$user['id'],'push_subscribe',['registered'=>true]);
+            Response::json(['registered'=>true,'subscription_id'=>$row['id']],201);
+        }catch(\Throwable $e){Response::error('PUSH_SUBSCRIPTION_INVALID',$e->getMessage(),422);}
+    }
+
+    public function deletePushSubscription(Request $request):never
+    {
+        if(!$this->pushSubscriptions)Response::error('PUSH_UNAVAILABLE','Push subscription registry unavailable',503);
+        $user=$this->users->currentUser();
+        Response::json(['deleted'=>$this->pushSubscriptions->remove((string)$user['id'],(string)($request->body['endpoint']??''))]);
     }
 
     public function analytics(Request $request): never
