@@ -172,3 +172,44 @@ test('M12 utility entity page exposes verification history', async ({ page }) =>
   await expect(page.locator('.utility-card').first()).toContainText('Verified');
   await expect(page.locator('.utility-card').first()).toContainText('Demo:');
 });
+
+
+test('M12 duplicate utility follow controls stay synchronized', async ({ page }) => {
+  await page.goto('/utility');
+  const first=page.locator('[data-utility-follow]').first();
+  const id=await first.getAttribute('data-utility-follow');
+  const controls=page.locator('[data-utility-follow="'+id+'"]');
+  if(await controls.count()>1){
+    await first.click();
+    const expected=await first.locator('span').textContent();
+    for(let i=0;i<await controls.count();i++) await expect(controls.nth(i).locator('span')).toHaveText(expected);
+  }
+});
+
+test('M13 Community accepts moderation-first submissions', async ({ page, request }) => {
+  const errors=[];page.on('pageerror',err=>errors.push(err.message));
+  await page.goto('/community');
+  await expect(page.locator('h1')).toHaveText('Pune Community');
+  await page.locator('[data-community-form] [name=area]').fill('Baner');
+  await page.locator('[data-community-form] [name=title]').fill('Browser community smoke');
+  await page.locator('[data-community-form] [name=body]').fill('Moderation-first browser submission');
+  await page.locator('[data-community-form] button[type=submit]').click();
+  await expect(page.locator('[data-community-status]')).toHaveText('Submitted for moderation');
+  const feed=await request.get('/api/v1/community?area=Baner');expect(feed.ok()).toBeTruthy();
+  const payload=await feed.json();expect(payload.data.some(x=>x.title==='Browser community smoke')).toBeFalsy();
+  expect(errors).toEqual([]);
+});
+
+test('M14 Utility board exposes freshness state', async ({ page }) => {
+  await page.goto('/utility');
+  await expect(page.locator('.utility-card').first()).toContainText('Freshness:');
+});
+
+test('M15 Events public surface and API are browser-safe', async ({ page, request }) => {
+  const errors=[];page.on('pageerror',err=>errors.push(err.message));
+  await page.goto('/events');
+  await expect(page.locator('h1')).toHaveText("What's on in Pune");
+  const response=await request.get('/api/v1/events');expect(response.ok()).toBeTruthy();
+  const payload=await response.json();expect(Array.isArray(payload.data)).toBeTruthy();
+  expect(errors).toEqual([]);
+});
