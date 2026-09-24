@@ -105,13 +105,14 @@ test('M10 My Pune preferences persist and shape reader state', async ({ page }) 
 
 test('M10 Near You surface reflects selected neighbourhoods', async ({ page }) => {
   await page.goto('/profile');
-  const aundh=page.locator('input[name="areas"][value="Aundh"]');
-  if(!(await aundh.isChecked())) await page.locator('label.pref-option',{has:aundh}).click();
+  const baner=page.locator('input[name="areas"][value="Baner"]');
+  if(!(await baner.isChecked())) await page.locator('label.pref-option',{has:baner}).click();
   await page.locator('[data-preferences] button[type="submit"]').click();
   await expect(page.locator('[data-preference-status]')).toHaveText('Saved');
 
   await page.goto('/near-you');
   await expect(page.locator('h1')).toHaveText('Near You');
-  await expect(page.locator('.near-you-areas')).toContainText('Aundh');
+  await expect(page.locator('.near-you-areas')).toContainText('Baner');
   await expect(page.locator('#nearYouFeed .story').first()).toBeVisible();
+  await expect(page.locator('#nearYouFeed .story').first()).toContainText('Pune food street');
 });
