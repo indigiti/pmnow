@@ -100,7 +100,7 @@ final class UtilityService
             'id'=>isset($data['id'])?(string)$data['id']:UuidV7::generate(),
             'kind'=>$kind,'name'=>$name,'slug'=>$this->slug((string)($data['slug']??$name)),
             'authority'=>trim((string)($data['authority']??'')),
-            'areas'=>$areas,'status'=>in_array(($data['status']??'active'),['active','inactive'],true)?$data['status']:'active',
+            'areas'=>$areas,'status'=>in_array((string)($data['status']??'active'),['active','inactive'],true)?(string)($data['status']??'active'):'active',
             'source_label'=>trim((string)($data['source_label']??'')),
             'source_url'=>$this->safeSourceUrl($data['source_url']??null),
             'external_id'=>isset($data['external_id'])?trim((string)$data['external_id']):null,
@@ -118,7 +118,7 @@ final class UtilityService
         $title=trim((string)($data['title']??''));
         if($title==='')throw new \RuntimeException('Utility update title required');
         $summary=trim((string)($data['summary']??''));
-        $status=in_array(($data['status']??'active'),['active','resolved'],true)?$data['status']:'active';
+        $status=in_array((string)($data['status']??'active'),['active','resolved'],true)?(string)($data['status']??'active'):'active';
         $record=$this->store->put('utility-updates',[
             'id'=>isset($data['id'])?(string)$data['id']:UuidV7::generate(),
             'entity_id'=>$entity['id'],'title'=>$title,'summary'=>$summary,
