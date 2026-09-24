@@ -1,0 +1,11 @@
+<?php
+declare(strict_types=1);
+use PuneMirror\Core\JsonStore;use PuneMirror\Core\UuidV7;use PuneMirror\Services\CommunityService;use PuneMirror\Services\EventService;use PuneMirror\Services\UtilityFreshnessService;
+$app=require dirname(__DIR__).'/bootstrap/app.php';$store=new JsonStore($app['root'].'/storage/data');$community=new CommunityService($store);$events=new EventService($store);$freshness=new UtilityFreshnessService();
+$assert=function(bool $ok,string $label):void{if(!$ok){fwrite(STDERR,"FAIL: $label\n");exit(1);}echo "PASS: $label\n";};$user=UuidV7::generate();
+$post=$community->submit($user,['type'=>'question','title'=>'M13 smoke question','body'=>'Neighbourhood test','area'=>'Baner']);$assert(($post['status']??'')==='pending','M13 community submissions default to moderation');$assert(!in_array($post['id'],array_column($community->feed('Baner'),'id'),true),'pending UGC is not public');
+$published=$community->moderate($post['id'],'publish',UuidV7::generate(),'smoke');$assert(($published['status']??'')==='published'&&in_array($post['id'],array_column($community->feed('Baner'),'id'),true),'moderated community post becomes public');
+$report=$community->report($user,$post['id'],'M13 smoke report');$assert(($report['status']??'')==='open','community reporting persists');
+$event=$events->create(['title'=>'M15 future event','venue'=>'Test venue','area'=>'Baner','starts_at'=>gmdate('c',time()+86400),'source_url'=>'https://example.com/event','is_public'=>true]);$assert(in_array($event['id'],array_column($events->upcoming('Baner'),'id'),true),'M15 public future event appears in discovery');
+$bad=false;try{$events->create(['title'=>'Bad','venue'=>'X','starts_at'=>gmdate('c',time()+1000),'source_url'=>'mailto:test@example.com']);}catch(Throwable){$bad=true;}$assert($bad,'event provenance rejects non-HTTP source scheme');
+$live=$freshness->state(['verified_at'=>gmdate('c'),'entity'=>['kind'=>'traffic']]);$assert($live['state']==='live','M14 freshness marks recent traffic data live');$expired=$freshness->state(['verified_at'=>gmdate('c',time()-4000),'entity'=>['kind'=>'traffic']]);$assert($expired['state']==='expired','M14 freshness expires old traffic data');echo "M13-M15 smoke tests passed.\n";
