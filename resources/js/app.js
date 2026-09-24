@@ -77,6 +77,22 @@ window.gsap = gsap;
       } catch(err) { toast(err.message); }
     }
 
+    const utilityFollow=e.target.closest('[data-utility-follow]');
+    if(utilityFollow){
+      e.preventDefault();
+      utilityFollow.disabled=true;
+      try{
+        const data=await api(`/api/v1/utility/entities/${utilityFollow.dataset.utilityFollow}/follow`,{method:'POST',body:'{}'});
+        $('[data-utility-follow="'+utilityFollow.dataset.utilityFollow+'"]').forEach(button=>{
+          button.classList.toggle('on',data.followed);
+          const label=button.querySelector('span');if(label)label.textContent=data.followed?'Following':'Follow';
+        });
+        analyticsTrack('utility_follow',{entity_id:utilityFollow.dataset.utilityFollow,active:!!data.followed});
+        toast(data.followed?'Utility alerts enabled':'Utility alerts removed');
+      }catch(err){toast(err.message);}finally{utilityFollow.disabled=false;}
+      return;
+    }
+
     const channel = e.target.closest('[data-channel]');
     if (channel) {
       $$('.channels .chip').forEach(b=>b.classList.remove('active'));

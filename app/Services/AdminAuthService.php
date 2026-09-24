@@ -8,8 +8,8 @@ final class AdminAuthService
 {
     private const PERMISSIONS=[
         'super_admin'=>['*'],
-        'admin'=>['admin.view','content.review','content.approve','content.edit','sources.manage','jobs.manage','distribution.manage','system.view'],
-        'editor'=>['admin.view','content.review','content.approve','content.edit','sources.view','distribution.manage','system.view'],
+        'admin'=>['admin.view','content.review','content.approve','content.edit','sources.manage','jobs.manage','distribution.manage','utility.manage','system.view'],
+        'editor'=>['admin.view','content.review','content.approve','content.edit','sources.view','distribution.manage','utility.manage','system.view'],
         'reviewer'=>['admin.view','content.review','content.approve','sources.view'],
         'viewer'=>['admin.view','sources.view','system.view'],
     ];

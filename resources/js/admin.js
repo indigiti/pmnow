@@ -22,6 +22,18 @@
   const credentialDialog=q('[data-credential-dialog]'); qa('[data-open-credential]').forEach(b=>b.addEventListener('click',()=>{q('[name=source_id]',credentialDialog).value=b.dataset.openCredential;credentialDialog?.showModal();})); q('[data-save-credential]')?.addEventListener('click',async e=>{e.preventDefault();const f=q('[data-credential-form]');const d=Object.fromEntries(new FormData(f));try{await api(`/api/admin/sources/${d.source_id}/credentials`,{method:'POST',body:JSON.stringify({credentials:{[d.credential_name]:d.credential_value}})});credentialDialog.close();toast('Credential encrypted and stored');location.reload();}catch(err){toast(err.message);}});
   qa('[data-resolve-error]').forEach(b=>b.addEventListener('click',async()=>{try{await api(`/api/admin/errors/${b.dataset.resolveError}/resolve`,{method:'POST',body:'{}'});location.reload();}catch(e){toast(e.message);}}));
   q('[data-refresh-health]')?.addEventListener('click',async()=>{try{await api('/api/admin/system/health');location.reload();}catch(e){toast(e.message);}});
+  q('[data-create-utility-entity]')?.addEventListener('submit',async e=>{
+    e.preventDefault();const f=e.currentTarget;const data=Object.fromEntries(new FormData(f));
+    data.areas=String(data.areas||'').split(',').map(x=>x.trim()).filter(Boolean);
+    try{await api('/api/admin/utility/entities',{method:'POST',body:JSON.stringify(data)});toast('Utility entity created');location.reload();}catch(err){toast(err.message);}
+  });
+  q('[data-create-utility-update]')?.addEventListener('submit',async e=>{
+    e.preventDefault();const f=e.currentTarget;const data=Object.fromEntries(new FormData(f));
+    try{const result=await api('/api/admin/utility/updates',{method:'POST',body:JSON.stringify(data)});toast(`Utility update published · ${result.follower_notifications||0} follower alert(s)`);location.reload();}catch(err){toast(err.message);}
+  });
+  qa('[data-resolve-utility-update]').forEach(b=>b.addEventListener('click',async()=>{
+    b.disabled=true;try{await api(`/api/admin/utility/updates/${b.dataset.resolveUtilityUpdate}/resolve`,{method:'POST',body:'{}'});toast('Utility update resolved');location.reload();}catch(err){toast(err.message);}finally{b.disabled=false;}
+  }));
   qa('[data-distribute-story]').forEach(b=>b.addEventListener('click',async()=>{
     b.disabled=true;
     try{

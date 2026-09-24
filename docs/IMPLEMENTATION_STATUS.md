@@ -114,3 +114,24 @@
 - [ ] Web Push encrypted sending transport with private VAPID credentials
 - [ ] WhatsApp/Telegram provider delivery adapters and credentials
 - [ ] production delivery-rate / unsubscribe telemetry
+
+
+## M12 — Pune Utility Layer — IN PROGRESS
+- [x] separate No-DB utility entity/update/follow domain
+- [x] traffic / transit / weather / air / civic / outage / emergency / event kinds
+- [x] source + verification metadata on public utility updates
+- [x] severity and active/resolved lifecycle
+- [x] My Pune area-aware utility ranking
+- [x] public Pune Utility board
+- [x] per-entity utility history pages
+- [x] reader utility follows
+- [x] utility follower notifications in existing Alerts inbox
+- [x] newsroom Utility Desk
+- [x] newsroom create entity / publish update / resolve update controls
+- [x] public utility APIs and sitemap entry
+- [x] M12 PHP + Chromium regression coverage
+- [ ] official traffic/transit/civic provider adapters
+- [ ] live weather/AQI provider adapter and freshness policy
+- [ ] external outage/emergency ingestion contracts
+- [ ] utility data expiry/staleness automation
+- [ ] production source-level SLA and freshness telemetry

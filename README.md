@@ -75,3 +75,8 @@ PMNow now carries the M8.1 growth-engineering foundation and the first M9/M10 im
 ## M11 distribution foundation
 
 M11 adds reader-controlled breaking, neighbourhood and topic alerts; Morning/Evening/Weekend briefing jobs; idempotent in-app delivery; newsroom distribution controls; channel-ready JSON feeds; and a Web Push subscription/service-worker contract. External Web Push encryption and messaging-provider transports remain credentialed adapters rather than hidden dependencies, so PMNow continues to run fully in No-DB/file mode without third-party services.
+
+
+## M12 Pune Utility foundation
+
+PMNow now has a separate No-DB utility domain for traffic, transit, weather, air quality, civic notices, outages, emergencies and events. Reader-facing utility cards carry explicit source and verification metadata, support area-aware ranking from My Pune preferences, and can be followed for alerts. Newsroom editors can create utility entities, publish advisories and resolve them from the Utility Desk. Demo records are limited to local/CI seeding and are source-labelled; production does not infer live utility conditions when verified data is unavailable. Official provider adapters and freshness automation remain the next M12 slice.

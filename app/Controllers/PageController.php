@@ -9,6 +9,8 @@ use PuneMirror\Services\PersonalizationService;
 use PuneMirror\Services\SeoService;
 use PuneMirror\Services\StoryService;
 use PuneMirror\Services\UserStateService;
+use PuneMirror\Services\UtilityService;
+use PuneMirror\Core\Request;
 
 final class PageController
 {
@@ -19,7 +21,8 @@ final class PageController
         private readonly NotificationService $notifications,
         private readonly JsonStore $store,
         private readonly SeoService $seo,
-        private readonly PersonalizationService $personalization
+        private readonly PersonalizationService $personalization,
+        private readonly ?UtilityService $utility=null
     ) {}
 
     public function home(): never
@@ -53,6 +56,42 @@ final class PageController
             'activeNav'=>'explore',
             'userState'=>$this->users->state(),
             'seo'=>$this->seo->site('Explore Pune | Pune Mirror Now','Search Pune news by neighbourhood, topic and story.','/explore'),
+        ]);
+    }
+
+    public function utility(Request $request):never
+    {
+        if(!$this->utility)Response::html('<h1>Utility unavailable</h1>',503);
+        $state=$this->users->state();
+        $kind=isset($request->query['kind'])?(string)$request->query['kind']:null;
+        $area=isset($request->query['area'])?(string)$request->query['area']:null;
+        $updates=($kind||$area)?$this->utility->feed($kind,$area,true,40):$this->utility->personalized((array)$state['user'],40);
+        $this->page('pages/utility',[
+            'updates'=>$updates,
+            'entities'=>$this->utility->entities($kind),
+            'followedEntityIds'=>$this->utility->followedEntityIds((string)$state['user']['id']),
+            'kinds'=>$this->utility->kinds(),
+            'selectedKind'=>$kind,
+            'selectedArea'=>$area,
+            'activeNav'=>'utility',
+            'userState'=>$state,
+            'seo'=>$this->seo->site('Pune Utility | Pune Mirror Now','Traffic, transit, weather, civic, outage and emergency updates for Pune.','/utility'),
+        ]);
+    }
+
+    public function utilityEntity(string $slug):never
+    {
+        if(!$this->utility)Response::html('<h1>Utility unavailable</h1>',503);
+        $entity=$this->utility->entityBySlug($slug);
+        if(!$entity)Response::html('<h1>Utility entity not found</h1>',404);
+        $state=$this->users->state();
+        $this->page('pages/utility-entity',[
+            'entity'=>$entity,
+            'updates'=>$this->utility->entityFeed((string)$entity['id'],false,50),
+            'isFollowed'=>in_array((string)$entity['id'],$this->utility->followedEntityIds((string)$state['user']['id']),true),
+            'activeNav'=>'utility',
+            'userState'=>$state,
+            'seo'=>$this->seo->site((string)$entity['name'].' | Pune Utility','Verified utility updates for '.(string)$entity['name'].'.',(string)$entity['path']),
         ]);
     }
 

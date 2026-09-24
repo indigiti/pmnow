@@ -22,7 +22,7 @@ if ($isProduction) {
     }
 
     $existing = [];
-    foreach (['stories','contents','users','sources','live-stories','live-updates'] as $collection) {
+    foreach (['stories','contents','users','sources','live-stories','live-updates','utility-entities','utility-updates','utility-follows'] as $collection) {
         foreach (glob($dataRoot . '/' . $collection . '/*.json') ?: [] as $file) $existing[] = $file;
     }
     if ($existing && !$force) {
@@ -144,6 +144,40 @@ foreach ([
         'published_at'=>$published(5),'discovered_at'=>gmdate('c'),'modified_at'=>gmdate('c'),'language'=>'en','media_ids'=>[],'entity_names'=>[],
     ]);
 }
+
+
+// M12 utility fixtures. These are explicit demo records for local/CI certification only.
+$utilityTraffic=$make('utility-entities',[
+    'kind'=>'traffic','name'=>'University Road traffic corridor','slug'=>'university-road-traffic',
+    'authority'=>'Pune traffic desk demo','areas'=>['Shivajinagar','Pune'],'status'=>'active',
+    'source_label'=>'PMNow demo seed','source_url'=>null,'metadata'=>['demo'=>true],
+]);
+$utilityMetro=$make('utility-entities',[
+    'kind'=>'transit','name'=>'Pune Metro network','slug'=>'pune-metro-network',
+    'authority'=>'Metro service demo','areas'=>['Pune','Shivajinagar'],'status'=>'active',
+    'source_label'=>'PMNow demo seed','source_url'=>null,'metadata'=>['demo'=>true],
+]);
+$utilityWeather=$make('utility-entities',[
+    'kind'=>'weather','name'=>'Pune weather desk','slug'=>'pune-weather-desk',
+    'authority'=>'Weather desk demo','areas'=>['Pune','Citywide'],'status'=>'active',
+    'source_label'=>'PMNow demo seed','source_url'=>null,'metadata'=>['demo'=>true],
+]);
+
+$make('utility-updates',[
+    'entity_id'=>$utilityTraffic['id'],'title'=>'Demo: University Road lane advisory','summary'=>'Demo utility record used to certify the M12 traffic status surface.',
+    'severity'=>'advisory','status'=>'active','area'=>'Shivajinagar','published_at'=>$published(9),'verified_at'=>$published(8),
+    'source_label'=>'PMNow demo seed','source_url'=>null,'is_public'=>true,'metadata'=>['demo'=>true],
+]);
+$make('utility-updates',[
+    'entity_id'=>$utilityMetro['id'],'title'=>'Demo: Metro service operating update','summary'=>'Demo utility record used to certify transit status cards and entity follows.',
+    'severity'=>'info','status'=>'active','area'=>'Pune','published_at'=>$published(16),'verified_at'=>$published(15),
+    'source_label'=>'PMNow demo seed','source_url'=>null,'is_public'=>true,'metadata'=>['demo'=>true],
+]);
+$make('utility-updates',[
+    'entity_id'=>$utilityWeather['id'],'title'=>'Demo: City weather advisory','summary'=>'Demo utility record used to certify weather and citywide relevance.',
+    'severity'=>'major','status'=>'active','area'=>'Pune','published_at'=>$published(6),'verified_at'=>$published(5),
+    'source_label'=>'PMNow demo seed','source_url'=>null,'is_public'=>true,'metadata'=>['demo'=>true],
+]);
 
 $storiesRepo->rebuildIndexes();
 

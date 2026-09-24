@@ -6,6 +6,7 @@ $nav=[
   ['/admin/sources','external','Sources'],
   ['/admin/jobs','follow','Jobs & Scheduler'],
   ['/admin/distribution','bell','Distribution'],
+  ['/admin/utility','pin','Utility Desk'],
   ['/admin/system','heart','System Health'],
   ['/admin/errors','bell','Error Center'],
   ['/admin/notifications','bell','Notifications'],

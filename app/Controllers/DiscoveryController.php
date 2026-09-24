@@ -23,6 +23,7 @@ final class DiscoveryController
             ['loc'=>pm_absolute_url('/'),'lastmod'=>gmdate('c')],
             ['loc'=>pm_absolute_url('/explore'),'lastmod'=>gmdate('c')],
             ['loc'=>pm_absolute_url('/watch'),'lastmod'=>gmdate('c')],
+            ['loc'=>pm_absolute_url('/utility'),'lastmod'=>gmdate('c')],
         ];
         foreach($this->store->all('categories') as $row)if(!empty($row['slug']))$urls[]=['loc'=>pm_absolute_url('/category/'.rawurlencode((string)$row['slug'])),'lastmod'=>(string)($row['updated_at']??gmdate('c'))];
         foreach($this->store->all('locations') as $row)if(!empty($row['slug']))$urls[]=['loc'=>pm_absolute_url('/area/'.rawurlencode((string)$row['slug'])),'lastmod'=>(string)($row['updated_at']??gmdate('c'))];

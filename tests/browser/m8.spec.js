@@ -139,3 +139,36 @@ test('M11 alert preferences and channel feed are browser-safe', async ({ page, r
   expect(payload.items[0].url).toContain('/pune/');
   expect(errors).toEqual([]);
 });
+
+
+test('M12 utility board is source-labelled and followable', async ({ page, request }) => {
+  const errors=[];page.on('pageerror',err=>errors.push(err.message));
+  await page.goto('/utility');
+  await expect(page.locator('.utility-hero h1')).toHaveText('City status');
+  await expect(page.locator('.utility-card').first()).toBeVisible();
+  await expect(page.locator('.utility-card').first()).toContainText('PMNow demo seed');
+  await expect(page.locator('.utility-card').first()).toContainText('Demo:');
+
+  const button=page.locator('[data-utility-follow]').first();
+  const entityId=await button.getAttribute('data-utility-follow');
+  await button.click();
+  await expect(button.locator('span')).toHaveText('Following');
+
+  const entities=await request.get('/api/v1/utility/entities');
+  expect(entities.ok()).toBeTruthy();
+  const entitiesPayload=await entities.json();
+  expect(entitiesPayload.data.length).toBeGreaterThan(0);
+
+  const filtered=await request.get('/api/v1/utility?kind=traffic&area=Shivajinagar');
+  expect(filtered.ok()).toBeTruthy();
+  const payload=await filtered.json();
+  expect(payload.data.some(row=>row.entity?.id===entityId || row.entity?.kind==='traffic')).toBeTruthy();
+  expect(errors).toEqual([]);
+});
+
+test('M12 utility entity page exposes verification history', async ({ page }) => {
+  await page.goto('/utility/university-road-traffic');
+  await expect(page.locator('.utility-entity-hero h1')).toContainText('University Road');
+  await expect(page.locator('.utility-card').first()).toContainText('Verified');
+  await expect(page.locator('.utility-card').first()).toContainText('Demo:');
+});

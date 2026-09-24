@@ -21,3 +21,8 @@
 .distribution-actions{display:flex;gap:6px;flex-wrap:wrap}.distribution-actions button{white-space:nowrap}
 .distribution-contracts{margin-top:18px}.channel-contract-grid{display:flex;gap:10px;flex-wrap:wrap;padding:16px 17px}.channel-contract-grid a{border:1px solid var(--pm-line);border-radius:10px;padding:10px 12px;font-weight:750}
 .distribution-contracts>p{padding:0 17px 16px;color:var(--pm-muted)}
+
+.utility-admin-grid{margin-top:18px}.utility-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px 17px}
+.utility-form label{display:grid;gap:6px;font-size:12px;font-weight:800}.utility-form input,.utility-form select,.utility-form textarea{width:100%;border:1px solid var(--pm-line);border-radius:10px;padding:10px 11px;background:#fff;color:var(--pm-ink)}
+.utility-form textarea{resize:vertical}.utility-form .admin-span2{grid-column:1/-1}.utility-form button{justify-self:start}.utility-update-panel{margin-top:18px}
+@media(max-width:700px){.utility-form{grid-template-columns:1fr}.utility-form .admin-span2{grid-column:auto}}
