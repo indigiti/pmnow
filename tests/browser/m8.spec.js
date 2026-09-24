@@ -11,6 +11,16 @@ test('M8 home channel interaction stays browser-safe', async ({ page }) => {
   const visible=page.locator('#feed .story:visible');
   await expect(visible.first()).toBeVisible();
   expect(await visible.count()).toBeGreaterThan(0);
+
+  const save=page.locator('[data-bookmark]:visible').first();
+  await save.click();
+  await expect(save.locator('span')).toHaveText('Saved');
+
+  const follow=page.locator('[data-follow]:visible').first();
+  if (await follow.count()) {
+    await follow.click();
+    await expect(follow.locator('span')).toHaveText('Following');
+  }
   expect(errors).toEqual([]);
 });
 
