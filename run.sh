@@ -38,4 +38,4 @@ if ! compgen -G 'storage/data/stories/*.json' > /dev/null; then
   php tools/seed.php
 fi
 php tools/doctor.php
-php -S 127.0.0.1:${PORT:-8080} -t public public/index.php
+php -S 127.0.0.1:${PORT:-8080} -t public tools/dev-router.php

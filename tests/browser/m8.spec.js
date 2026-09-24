@@ -81,9 +81,11 @@ test('M9 discovery endpoints and NewsArticle metadata are crawlable', async ({ p
 test('M10 My Pune preferences persist and shape reader state', async ({ page }) => {
   await page.goto('/profile');
   const aundh=page.locator('input[name="areas"][value="Aundh"]');
-  await aundh.check();
+  await page.locator('label.pref-option',{has:aundh}).click();
+  await expect(aundh).toBeChecked();
   const lifestyle=page.locator('input[name="channels"][value="Lifestyle"]');
-  await lifestyle.check();
+  await page.locator('label.pref-option',{has:lifestyle}).click();
+  await expect(lifestyle).toBeChecked();
   await page.locator('[data-preferences] button[type="submit"]').click();
   await expect(page.locator('[data-preference-status]')).toHaveText('Saved');
 
