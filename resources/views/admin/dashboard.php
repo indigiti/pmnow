@@ -13,3 +13,16 @@
 <?php if (!$jobs): ?><div class="admin-empty">No jobs yet.</div><?php endif; ?>
 <?php foreach ($jobs as $j): ?><div class="job-row"><div><strong><?= pm_e($j['type']??'JOB') ?></strong><small><?= pm_e($j['subject_id']??'') ?></small></div><span class="status <?= pm_e($j['status']??'queued') ?>"><?= pm_e(strtoupper($j['status']??'queued')) ?></span></div><?php endforeach; ?>
 </section></div>
+
+<section class="admin-panel admin-reader-analytics">
+  <div class="admin-panel-head"><h2>Reader engagement · 7 days</h2><span>Privacy-minimal event ledger</span></div>
+  <div class="admin-kpis">
+    <?php foreach ([['Engaged readers',$readerAnalytics['engaged_readers']??0],['Returning readers',$readerAnalytics['returning_readers']??0],['Personalized readers',$readerAnalytics['personalized_readers']??0],['Events',$readerAnalytics['events']??0]] as [$label,$value]): ?>
+      <div class="admin-kpi"><span><?=pm_e($label)?></span><strong><?= (int)$value ?></strong></div>
+    <?php endforeach; ?>
+  </div>
+  <div class="admin-grid2">
+    <div><h3>Top neighbourhoods</h3><?php if(empty($readerAnalytics['top_areas'])): ?><div class="admin-empty">No reader area preferences yet.</div><?php else: ?><?php foreach($readerAnalytics['top_areas'] as $name=>$count): ?><div class="job-row"><strong><?=pm_e($name)?></strong><span><?= (int)$count ?></span></div><?php endforeach; ?><?php endif; ?></div>
+    <div><h3>Top topics</h3><?php if(empty($readerAnalytics['top_topics'])): ?><div class="admin-empty">No reader topic preferences yet.</div><?php else: ?><?php foreach($readerAnalytics['top_topics'] as $name=>$count): ?><div class="job-row"><strong><?=pm_e($name)?></strong><span><?= (int)$count ?></span></div><?php endforeach; ?><?php endif; ?></div>
+  </div>
+</section>

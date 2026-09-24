@@ -35,7 +35,14 @@ $assert(in_array('Baner',$updated['preferences']['areas']??[],true)&&in_array('L
 
 $ranked=$personal->forYouPage(5);
 $assert(count($ranked['rows']??[])>=1,'personalized For You feed returns stories');
+$near=$personal->nearYouPage(10);
+$assert(count($near['rows']??[])>=1,'Near You returns stories matching selected neighbourhoods');
 $reasons=array_merge(...array_map(fn($s)=>(array)($s['_personalization']['reasons']??[]),$ranked['rows']));
 $assert(in_array('near_you',$reasons,true)||in_array('your_topic',$reasons,true),'personalization ranking records neighbourhood/topic reason');
+
+$analytics=new \PuneMirror\Services\AnalyticsService($store);
+$analytics->track((string)$updated['id'],'near_you_open',['path'=>'/near-you']);
+$summary=$analytics->newsroomSummary();
+$assert(array_key_exists('engaged_readers',$summary)&&array_key_exists('personalized_readers',$summary),'newsroom reader analytics summary available');
 
 echo "M9/M10 smoke tests passed.\n";

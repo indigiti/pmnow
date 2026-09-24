@@ -33,6 +33,19 @@ final class PageController
         ]);
     }
 
+    public function nearYou(): never
+    {
+        $state=$this->users->state();
+        $areas=(array)($state['user']['preferences']['areas']??[]);
+        $this->page('pages/near-you',[
+            'stories'=>$this->personalization->nearYou(20),
+            'areas'=>$areas,
+            'activeNav'=>'home',
+            'userState'=>$state,
+            'seo'=>$this->seo->privatePage('Near You | Pune Mirror Now','/near-you'),
+        ]);
+    }
+
     public function explore(): never
     {
         $this->page('pages/explore',[

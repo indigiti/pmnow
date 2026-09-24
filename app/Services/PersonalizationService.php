@@ -20,17 +20,25 @@ final class PersonalizationService
         return ['rows'=>$slice,'has_more'=>$hasMore,'next_cursor'=>$next];
     }
 
-    public function nearYou(int $limit=12):array
+    public function nearYou(int $limit=12):array{return $this->nearYouPage($limit)['rows'];}
+
+    public function nearYouPage(int $limit=12,?string $cursor=null):array
     {
         $state=$this->users->state();$areas=array_map([$this,'norm'],(array)($state['user']['preferences']['areas']??[]));
-        if(!$areas)return [];
-        $rows=[];
+        if(!$areas)return ['rows'=>[],'has_more'=>false,'next_cursor'=>null];
+        $matched=[];
         foreach($this->ranked() as $story){
             $locations=array_map(fn($x)=>$this->norm((string)($x['name']??$x['slug']??'')),$story['locations']??[]);
-            if(array_intersect($areas,$locations))$rows[]=$story;
-            if(count($rows)>=$limit)break;
+            if(array_intersect($areas,$locations))$matched[]=$story;
         }
-        return $rows;
+        $offset=0;
+        if($cursor){
+            foreach($matched as $i=>$story)if(($story['id']??'')===$cursor){$offset=$i+1;break;}
+        }
+        $limit=max(1,min(50,$limit));$slice=array_slice($matched,$offset,$limit+1);
+        $hasMore=count($slice)>$limit;if($hasMore)array_pop($slice);
+        $next=$hasMore&&$slice?(string)end($slice)['id']:null;
+        return ['rows'=>$slice,'has_more'=>$hasMore,'next_cursor'=>$next];
     }
 
     private function ranked():array

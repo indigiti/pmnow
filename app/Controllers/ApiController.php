@@ -42,7 +42,11 @@ final class ApiController
         $limit = max(1, min(50, (int)($request->query['limit'] ?? 12)));
         $cursor=isset($request->query['cursor'])?(string)$request->query['cursor']:null;
         $mode=strtolower((string)($request->query['mode']??'latest'));
-        $page=$mode==='for-you'?$this->personalization->forYouPage($limit,$cursor):$this->stories->feedPage($limit,$cursor);
+        $page=match($mode){
+            'for-you'=>$this->personalization->forYouPage($limit,$cursor),
+            'near-you'=>$this->personalization->nearYouPage($limit,$cursor),
+            default=>$this->stories->feedPage($limit,$cursor),
+        };
         $rows=$page['rows'];
         $channel = strtolower((string)($request->query['channel'] ?? ''));
         if ($channel && $channel !== 'for-you') {
@@ -107,7 +111,12 @@ final class ApiController
     public function updatePreferences(Request $request): never
     {
         $user=$this->users->updatePreferences((array)$request->body);
-        Response::json(['preferences'=>$user['preferences']??[]]);
+        $prefs=(array)($user['preferences']??[]);
+        $this->analytics->track((string)$user['id'],'preference_update',[
+            'areas_count'=>count((array)($prefs['areas']??[])),
+            'topics_count'=>count((array)($prefs['channels']??[])),
+        ]);
+        Response::json(['preferences'=>$prefs]);
     }
 
     public function analytics(Request $request): never

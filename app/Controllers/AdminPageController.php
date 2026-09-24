@@ -8,14 +8,15 @@ use PuneMirror\Services\EditorialService;
 use PuneMirror\Services\SourceService;
 use PuneMirror\Services\ErrorCenterService;
 use PuneMirror\Services\SystemHealthService;
+use PuneMirror\Services\AnalyticsService;
 use PuneMirror\Contracts\JobRepository;
 use PuneMirror\Core\JsonStore;
 
 final class AdminPageController
 {
-    public function __construct(private readonly View $view,private readonly AdminAuthService $auth,private readonly EditorialService $editorial,private readonly SourceService $sources,private readonly JobRepository $jobs,private readonly JsonStore $store,private readonly ?ErrorCenterService $errors=null,private readonly ?SystemHealthService $health=null){}
+    public function __construct(private readonly View $view,private readonly AdminAuthService $auth,private readonly EditorialService $editorial,private readonly SourceService $sources,private readonly JobRepository $jobs,private readonly JsonStore $store,private readonly ?ErrorCenterService $errors=null,private readonly ?SystemHealthService $health=null,private readonly ?AnalyticsService $analytics=null){}
     public function login(?string $error=null):never{Response::html($this->view->render('admin/login',['error'=>$error]));}
-    public function dashboard():never{$u=$this->requireUser();$this->page('admin/dashboard',['adminUser'=>$u,'metrics'=>$this->editorial->metrics(),'sources'=>$this->sources->all(),'jobs'=>array_slice($this->jobs->all(),0,8)]);}
+    public function dashboard():never{$u=$this->requireUser();$this->page('admin/dashboard',['adminUser'=>$u,'metrics'=>$this->editorial->metrics(),'sources'=>$this->sources->all(),'jobs'=>array_slice($this->jobs->all(),0,8),'readerAnalytics'=>$this->analytics?->newsroomSummary()??[]]);}
     public function inbox():never{$u=$this->requireUser();$this->page('admin/inbox',['adminUser'=>$u,'items'=>$this->editorial->inbox(),'metrics'=>$this->editorial->metrics()]);}
     public function sources():never{$u=$this->requireUser();$this->page('admin/sources',['adminUser'=>$u,'sources'=>$this->sources->all()]);}
     public function jobs():never{$u=$this->requireUser();$this->page('admin/jobs',['adminUser'=>$u,'jobs'=>$this->jobs->all()]);}

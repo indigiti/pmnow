@@ -87,7 +87,7 @@
 - [ ] production Search Console / Google News validation after deployment
 - [ ] visual/social-card optimization from real production stories
 
-## M10 — My Pune Personalization — IN PROGRESS
+## M10 — My Pune Personalization — COMPLETE
 - [x] editable neighbourhood preferences
 - [x] editable topic preferences
 - [x] deterministic For You ranking
@@ -95,5 +95,5 @@
 - [x] personalized Home ordering
 - [x] cursor-compatible personalized feed service
 - [x] saved-story retrieval independent of latest-feed window
-- [ ] dedicated Near You surface
-- [ ] newsroom analytics for preference/retention cohorts
+- [x] dedicated Near You surface
+- [x] newsroom analytics for preference/retention cohorts
