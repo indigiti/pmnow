@@ -45,7 +45,7 @@ window.gsap = gsap;
       e.preventDefault();
       try {
         const data = await api(`/api/v1/stories/${save.dataset.bookmark}/bookmark`, {method:'POST', body:'{}'});
-        $(`[data-bookmark="${save.dataset.bookmark}"]`).forEach(b => {
+        $$(`[data-bookmark="${save.dataset.bookmark}"]`).forEach(b => {
           b.classList.toggle('on', data.bookmarked);
           b.setAttribute('aria-label', data.bookmarked ? 'Remove bookmark' : 'Save story');
           const label = b.querySelector('span');
@@ -61,7 +61,7 @@ window.gsap = gsap;
       e.preventDefault();
       try {
         const data = await api(`/api/v1/stories/${follow.dataset.follow}/follow`, {method:'POST', body:'{}'});
-        $(`[data-follow="${follow.dataset.follow}"]`).forEach(b => {
+        $$(`[data-follow="${follow.dataset.follow}"]`).forEach(b => {
           b.classList.toggle('on', data.followed);
           const label=b.querySelector('span');
           if(label) label.textContent=data.followed?'Following':(b.dataset.followLabel||'Follow');
@@ -76,7 +76,7 @@ window.gsap = gsap;
       $$('.channels .chip').forEach(b=>b.classList.remove('active'));
       channel.classList.add('active');
       const q = channel.dataset.channel.replaceAll('-', ' ');
-      $('#feed .story').forEach((card) => {
+      $$('#feed .story').forEach((card) => {
         const haystack=(card.dataset.filter||'').toLowerCase();
         card.style.display = (q === 'for you' || q === 'pune' || haystack.includes(q)) ? '' : 'none';
       });
@@ -206,7 +206,7 @@ window.gsap = gsap;
   }
 
   // Reels: native scroll snap; tap empty media area to toggle paused treatment.
-  $('.reel').forEach((reel,i)=>{
+  $$('.reel').forEach((reel,i)=>{
     if('IntersectionObserver' in window){
       const io=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting&&entry.intersectionRatio>.7){track('reel_view',{index:i,path:location.pathname});io.disconnect();}}),{threshold:[.7]});
       io.observe(reel);
