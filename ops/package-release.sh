@@ -21,6 +21,13 @@ copy_tree(){
 copy_tree public "$PUBLIC"
 
 # Private application payload. Writable runtime state is created as empty directories below.
+# Keep a private copy of the Vite manifest so pm_asset() can resolve hashed public assets
+# after DigiOps splits public/ and private/ into different Cloudways roots.
+if [[ -f public/build/.vite/manifest.json ]]; then
+  mkdir -p "$PRIVATE/public/build/.vite"
+  cp public/build/.vite/manifest.json "$PRIVATE/public/build/.vite/manifest.json"
+fi
+
 for dir in app bootstrap config contracts engine resources tools; do
   copy_tree "$dir" "$PRIVATE/$dir"
 done
@@ -39,8 +46,8 @@ find "$STAGE" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 for required in \
   "$PUBLIC/index.php" "$PUBLIC/.htaccess" "$PUBLIC/health.php" "$PUBLIC/ready.php" \
-  "$PUBLIC/assets/app.css" "$PUBLIC/assets/app.js" \
-  "$PRIVATE/bootstrap/app.php" "$PRIVATE/config/app.php" "$PRIVATE/app/Core/Router.php" \
+  "$PUBLIC/assets/app.css" "$PUBLIC/assets/app.js" "$PUBLIC/build/.vite/manifest.json" \
+  "$PRIVATE/public/build/.vite/manifest.json" "$PRIVATE/bootstrap/app.php" "$PRIVATE/config/app.php" "$PRIVATE/app/Core/Router.php" \
   "$PRIVATE/resources/views/layout.php" "$PRIVATE/engine/main.py" "$PRIVATE/tools/seed.php"; do
   [[ -f "$required" ]] || { echo "Required release file missing: ${required#$STAGE/}" >&2; exit 1; }
 done
