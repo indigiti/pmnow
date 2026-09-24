@@ -1,0 +1,47 @@
+:root{
+  --pm-brand:#e31b23;
+  --pm-brand-strong:#bd1118;
+  --pm-brand-soft:#fff0f1;
+  --pm-ink:#121419;
+  --pm-text:#2b3037;
+  --pm-muted:#6d737d;
+  --pm-subtle:#969ca5;
+  --pm-surface:#ffffff;
+  --pm-surface-soft:#f6f7f8;
+  --pm-surface-raised:#ffffff;
+  --pm-canvas:#eef0f3;
+  --pm-line:#e4e7eb;
+  --pm-success:#0a7a55;
+  --pm-warning:#956400;
+  --pm-danger:#b4232a;
+  --pm-info:#255fa9;
+  --pm-radius-sm:8px;
+  --pm-radius-md:12px;
+  --pm-radius-lg:18px;
+  --pm-radius-xl:26px;
+  --pm-shadow-1:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.05);
+  --pm-shadow-2:0 18px 50px rgba(16,24,40,.10);
+  --pm-space-1:4px;
+  --pm-space-2:8px;
+  --pm-space-3:12px;
+  --pm-space-4:16px;
+  --pm-space-5:24px;
+  --pm-space-6:32px;
+  --pm-nav-h:72px;
+  --pm-header-h:68px;
+  --pm-content:680px;
+  --pm-serif:Georgia,"Times New Roman",serif;
+  --pm-sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+
+  /* legacy aliases while M8 removes old selectors incrementally */
+  --red:var(--pm-brand);
+  --ink:var(--pm-ink);
+  --muted:var(--pm-muted);
+  --soft:var(--pm-surface-soft);
+  --line:var(--pm-line);
+  --green:var(--pm-success);
+  --nav:var(--pm-nav-h);
+  --max:var(--pm-content);
+  --serif:var(--pm-serif);
+  --sans:var(--pm-sans);
+}

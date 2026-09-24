@@ -62,7 +62,7 @@ final class PageController
     {
         $state = $this->users->state();
         $rows = $this->notifications->forUser((string)$state['user']['id']);
-        $this->page('pages/notifications', ['notifications'=>$rows,'activeNav'=>'','userState'=>$state]);
+        $this->page('pages/notifications', ['notifications'=>$rows,'activeNav'=>'notifications','userState'=>$state]);
     }
 
     public function profile(): never

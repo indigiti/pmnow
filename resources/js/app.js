@@ -1,8 +1,5 @@
-import Alpine from 'alpinejs';
 import gsap from 'gsap';
-window.Alpine = Alpine;
 window.gsap = gsap;
-Alpine.start();
 (() => {
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -26,6 +23,8 @@ Alpine.start();
     return json.data;
   };
   const esc = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+  const scrollBehavior = reducedMotion ? 'auto' : 'smooth';
 
   document.addEventListener('click', async (e) => {
     const back = e.target.closest('[data-back]');
@@ -39,10 +38,11 @@ Alpine.start();
       e.preventDefault();
       try {
         const data = await api(`/api/v1/stories/${save.dataset.bookmark}/bookmark`, {method:'POST', body:'{}'});
-        $$(`[data-bookmark="${save.dataset.bookmark}"]`).forEach(b => {
+        $(`[data-bookmark="${save.dataset.bookmark}"]`).forEach(b => {
           b.classList.toggle('on', data.bookmarked);
-          if (b.textContent.includes('Save')) b.innerHTML = `${data.bookmarked?'★':'☆'} Save`;
-          else b.textContent = data.bookmarked ? '★' : '☆';
+          b.setAttribute('aria-label', data.bookmarked ? 'Remove bookmark' : 'Save story');
+          const label = b.querySelector('span');
+          if (label) label.textContent = data.bookmarked ? 'Saved' : 'Save';
         });
         toast(data.bookmarked ? 'Saved to My Pune' : 'Removed from saved');
       } catch(err) { toast(err.message); }
@@ -53,9 +53,10 @@ Alpine.start();
       e.preventDefault();
       try {
         const data = await api(`/api/v1/stories/${follow.dataset.follow}/follow`, {method:'POST', body:'{}'});
-        $$(`[data-follow="${follow.dataset.follow}"]`).forEach(b => {
+        $(`[data-follow="${follow.dataset.follow}"]`).forEach(b => {
           b.classList.toggle('on', data.followed);
-          b.textContent = data.followed ? 'Following' : (b.textContent.toLowerCase().includes('live') ? 'Follow live' : 'Follow story');
+          const label=b.querySelector('span');
+          if(label) label.textContent=data.followed?'Following':(b.dataset.followLabel||'Follow');
         });
         toast(data.followed ? 'You are following this story' : 'Story unfollowed');
       } catch(err) { toast(err.message); }
@@ -65,11 +66,32 @@ Alpine.start();
     if (channel) {
       $$('.channels .chip').forEach(b=>b.classList.remove('active'));
       channel.classList.add('active');
-      const q = channel.dataset.channel.replace('-', ' ');
-      $$('#feed .story').forEach((card, i) => {
-        card.style.display = (q === 'for you' || q === 'pune' || card.innerText.toLowerCase().includes(q) || i < 2) ? '' : 'none';
+      const q = channel.dataset.channel.replaceAll('-', ' ');
+      $('#feed .story').forEach((card) => {
+        const haystack=(card.dataset.filter||'').toLowerCase();
+        card.style.display = (q === 'for you' || q === 'pune' || haystack.includes(q)) ? '' : 'none';
       });
       toast(`${channel.textContent.trim()} feed`);
+    }
+
+    const share = e.target.closest('[data-share-url]');
+    if (share) {
+      e.preventDefault();
+      const absolute = new URL(share.dataset.shareUrl || '/', location.origin).href;
+      const title = share.dataset.shareTitle || document.title;
+      try {
+        if (navigator.share) {
+          await navigator.share({title, url:absolute});
+        } else if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(absolute);
+          toast('Link copied');
+        } else {
+          toast('Share unavailable');
+        }
+      } catch(err) {
+        if (err?.name !== 'AbortError') toast('Could not share');
+      }
+      return;
     }
 
     const topic = e.target.closest('[data-topic]');
@@ -95,7 +117,7 @@ Alpine.start();
     }
 
     const jump = e.target.closest('[data-jump-latest]');
-    if (jump) { document.querySelector('#developingTimeline .live-card')?.scrollIntoView({behavior:'smooth', block:'center'}); }
+    if (jump) { document.querySelector('#developingTimeline .live-card')?.scrollIntoView({behavior:scrollBehavior, block:'center'}); }
   });
 
   // Explore search: live API results without a full page refresh.
@@ -115,7 +137,7 @@ Alpine.start();
           const path=s.type==='gallery'?`/gallery/${s.id}`:s.type==='developing'?`/developing/${s.id}`:s.type==='live'?`/live/${s.id}`:`/story/${s.id}`;
           return `<a class="saved-row" href="${urlFor(path)}"><img src="${esc(urlFor(m))}" alt=""><div><small>${esc(s.categories?.[0]?.name||'Pune')}</small><h3>${esc(s.headline)}</h3><small>⌖ ${esc(s.locations?.[0]?.name||'Pune')}</small></div></a>`;
         }).join('') : '<div class="empty">No matching stories in the local file index.</div>');
-        box.scrollIntoView({behavior:'smooth',block:'start'});
+        box.scrollIntoView({behavior:scrollBehavior,block:'start'});
       } catch(err) { box.innerHTML=`<div class="empty">${esc(err.message)}</div>`; }
     });
   }
@@ -146,17 +168,18 @@ Alpine.start();
     const d=new Date(row.published_at); const time=Number.isNaN(d.getTime())?'NOW':d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     article.innerHTML=`<div class="live-time">${esc(time)} · ${esc(row.type||'Update')}</div><h3>${esc(row.headline||'Update')}</h3><p>${esc(row.body||'')}</p>`;
     live.prepend(article); live.dataset.last=row.published_at || live.dataset.last;
-    if (window.gsap) window.gsap.from(article,{y:-16,opacity:0,duration:.35});
+    if (window.gsap && !reducedMotion) window.gsap.from(article,{y:-16,opacity:0,duration:.35});
     if(announce) toast('New live update inserted');
   }
   if (live) {
     const liveId=live.dataset.liveId;
     setInterval(async()=>{
+      if (document.hidden) return;
       try {
         const after=live.dataset.last||''; const rows=await api(`/api/v1/live/${liveId}/updates?after=${encodeURIComponent(after)}`);
         [...rows].reverse().forEach(r=>insertLive(r, true));
       } catch(_) {}
-    },8000);
+    },12000);
   }
 
   // Reels: native scroll snap; tap empty media area to toggle paused treatment.
