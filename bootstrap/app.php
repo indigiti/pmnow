@@ -72,14 +72,34 @@ if (!function_exists('pm_asset')) {
     }
 }
 
+if (!function_exists('pm_slug')) {
+    function pm_slug(string $value): string {
+        $value=trim($value);
+        if(function_exists('iconv')){$ascii=@iconv('UTF-8','ASCII//TRANSLIT//IGNORE',$value);if(is_string($ascii)&&$ascii!=='')$value=$ascii;}
+        $value=strtolower($value);
+        $value=preg_replace('/[^a-z0-9]+/','-',$value)??'';
+        return trim(substr(trim($value,'-'),0,90),'-') ?: 'pune-news';
+    }
+}
+if (!function_exists('pm_absolute_url')) {
+    function pm_absolute_url(string $path=''): string {
+        if(preg_match('#^https?://#i',$path))return $path;
+        $app=(string)pm_env('APP_URL','http://127.0.0.1:8080');
+        $parts=parse_url($app);
+        $origin=(string)($parts['scheme']??'http').'://'.(string)($parts['host']??'127.0.0.1');
+        if(isset($parts['port']))$origin.=':'.(int)$parts['port'];
+        $normalized='/' . ltrim($path,'/');
+        $base=pm_base_path();
+        if($normalized==='/')$final=pm_url('/');
+        elseif($base!==''&&($normalized===$base||str_starts_with($normalized,$base.'/')))$final=$normalized;
+        else $final=pm_url($normalized);
+        return rtrim($origin,'/').$final;
+    }
+}
 if (!function_exists('pm_story_path')) {
     function pm_story_path(array $story): string {
-        return match ($story['type'] ?? 'article') {
-            'gallery' => pm_url('/gallery/' . $story['id']),
-            'developing' => pm_url('/developing/' . $story['id']),
-            'live' => pm_url('/live/' . $story['id']),
-            default => pm_url('/story/' . $story['id']),
-        };
+        $slug=pm_slug((string)($story['headline']??'pune-news'));
+        return pm_url('/pune/'.$slug.'--'.(string)$story['id']);
     }
 }
 

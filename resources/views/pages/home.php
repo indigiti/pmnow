@@ -4,6 +4,8 @@
     <button class="chip <?= $i===0?'active':'' ?>" type="button" data-channel="<?= pm_e(strtolower(str_replace(' ','-',$channel))) ?>"><?= pm_e($channel) ?></button>
   <?php endforeach; ?>
 </div>
+<?php $homePrefs=array_values(array_filter(array_merge($userState['user']['preferences']['areas']??[],$userState['user']['preferences']['channels']??[]))); ?>
+<div class="personalization-strip"><span><b>For You</b><?= $homePrefs?' · '.pm_e(implode(' · ',array_slice($homePrefs,0,3))):' · Pune' ?></span><a href="<?=pm_e(pm_url('/profile'))?>">Tune My Pune</a></div>
 <main id="feed" class="scroll withnav feed">
   <?php foreach ($stories as $i=>$story): $cardVariant=$i===0?'lead':($i<3?'standard':'compact'); require $viewRoot . '/components/story-card.php'; endforeach; unset($cardVariant); ?>
 </main>

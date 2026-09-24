@@ -48,3 +48,51 @@ test('analytics endpoint accepts a privacy-minimal event', async ({ page }) => {
   });
   expect(response.status()).toBe(202);
 });
+
+
+test('M9 discovery endpoints and NewsArticle metadata are crawlable', async ({ page, request }) => {
+  const sitemap=await request.get('/sitemap.xml');
+  expect(sitemap.ok()).toBeTruthy();
+  expect(await sitemap.text()).toContain('/pune/');
+
+  const news=await request.get('/news-sitemap.xml');
+  expect(news.ok()).toBeTruthy();
+  expect(await news.text()).toContain('<news:news>');
+
+  const rss=await request.get('/rss.xml');
+  expect(rss.ok()).toBeTruthy();
+  expect(await rss.text()).toContain('<rss version="2.0">');
+
+  const feed=await request.get('/api/v1/feed?limit=1');
+  const payload=await feed.json();
+  const path=payload.data[0].path;
+  expect(path).toContain('/pune/');
+
+  await page.goto(path);
+  const canonical=await page.locator('link[rel="canonical"]').getAttribute('href');
+  expect(canonical).toContain(path);
+  const jsonLd=await page.locator('script[type="application/ld+json"]').textContent();
+  expect(jsonLd).toContain('"@type":"NewsArticle"');
+
+  const category=await request.get('/category/traffic');
+  expect(category.ok()).toBeTruthy();
+});
+
+test('M10 My Pune preferences persist and shape reader state', async ({ page }) => {
+  await page.goto('/profile');
+  const aundh=page.locator('input[name="areas"][value="Aundh"]');
+  await aundh.check();
+  const lifestyle=page.locator('input[name="channels"][value="Lifestyle"]');
+  await lifestyle.check();
+  await page.locator('[data-preferences] button[type="submit"]').click();
+  await expect(page.locator('[data-preference-status]')).toHaveText('Saved');
+
+  const me=await page.request.get('/api/v1/me');
+  expect(me.ok()).toBeTruthy();
+  const payload=await me.json();
+  expect(payload.data.user.preferences.areas).toContain('Aundh');
+  expect(payload.data.user.preferences.channels).toContain('Lifestyle');
+
+  await page.goto('/');
+  await expect(page.locator('.personalization-strip')).toContainText('Aundh');
+});

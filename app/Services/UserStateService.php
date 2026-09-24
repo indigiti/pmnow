@@ -19,7 +19,7 @@ final class UserStateService
             'name' => 'Pune Reader',
             'email' => null,
             'role' => 'reader',
-            'preferences' => ['city' => 'Pune', 'areas' => ['Baner', 'Kothrud'], 'channels' => ['Pune', 'Traffic']],
+            'preferences' => ['city' => 'Pune', 'areas' => [], 'channels' => []],
         ]);
         Session::put('user_id', $user['id']);
         return $user;
@@ -43,5 +43,31 @@ final class UserStateService
     public function toggleFollow(string $storyId): bool
     {
         return $this->repo->toggleFollow($this->currentUser()['id'], $storyId);
+    }
+
+    public function updatePreferences(array $preferences): array
+    {
+        $user=$this->currentUser();
+        $current=(array)($user['preferences']??[]);
+        $areas=$this->cleanList((array)($preferences['areas']??$current['areas']??[]));
+        $channels=$this->cleanList((array)($preferences['channels']??$current['channels']??[]));
+        $user['preferences']=[
+            'city'=>(string)($current['city']??'Pune'),
+            'areas'=>$areas,
+            'channels'=>$channels,
+        ];
+        return $this->repo->saveUser($user);
+    }
+
+    private function cleanList(array $values):array
+    {
+        $out=[];
+        foreach($values as $value){
+            $value=trim((string)$value);
+            if($value===''||mb_strlen($value)>60)continue;
+            $out[strtolower($value)]=$value;
+            if(count($out)>=12)break;
+        }
+        return array_values($out);
     }
 }

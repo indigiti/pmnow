@@ -74,6 +74,7 @@ jobs:
           php tests/m6_smoke.php
           php tests/m7_smoke.php
           php tests/m8_smoke.php
+          php tests/m9_m10_smoke.php
           rm -f .env
 
       - name: Browser smoke

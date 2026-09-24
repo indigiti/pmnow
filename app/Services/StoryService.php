@@ -23,6 +23,7 @@ final class StoryService
         if (($story['type'] ?? '') === 'developing') {
             $story['updates'] = $this->storyUpdates($story['id']);
         }
+        $story['path']=pm_story_path($story);
         return $story;
     }
 
@@ -79,6 +80,21 @@ final class StoryService
         }));
         usort($rows, fn($a,$b) => strcmp($b['published_at'] ?? '', $a['published_at'] ?? ''));
         return $rows;
+    }
+
+    public function taxonomyFeed(string $kind,string $slug,int $limit=30):array
+    {
+        $slug=strtolower(trim($slug));$out=[];
+        foreach($this->stories->all() as $story){
+            if(($story['status']??'')!=='published')continue;
+            $hydrated=$this->hydrate($story);
+            $rows=$kind==='area'?($hydrated['locations']??[]):($hydrated['categories']??[]);
+            foreach($rows as $row){
+                if(strtolower((string)($row['slug']??''))===$slug){$out[]=$hydrated;break;}
+            }
+            if(count($out)>=$limit)break;
+        }
+        return $out;
     }
 
     public function search(string $q): array

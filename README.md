@@ -65,3 +65,8 @@ The staged deployable tree is written to `dist/pmnow/`.
 ## M8.1 growth foundation
 
 M8.1 adds browser-level certification, cursor feed pagination, a privacy-conscious JSONL analytics ledger, concurrent-safe derived indexes, and indexed provider external-ID lookup. Playwright browser smoke covers the M8 channel interaction that syntax-only CI could not detect.
+
+
+## Phase 1 growth roadmap
+
+PMNow now carries the M8.1 growth-engineering foundation and the first M9/M10 implementation. Public stories use SEO-friendly canonical URLs, Google News-compatible discovery feeds, and NewsArticle metadata. My Pune stores reader-selected neighbourhoods/topics in the existing No-DB user repository and uses them in a deterministic For You ranking. PostgreSQL remains deliberately deferred until M18.

@@ -1,85 +1,144 @@
 <?php
 namespace PuneMirror\Controllers;
 
+use PuneMirror\Core\JsonStore;
 use PuneMirror\Core\Response;
 use PuneMirror\Core\View;
+use PuneMirror\Services\NotificationService;
+use PuneMirror\Services\PersonalizationService;
+use PuneMirror\Services\SeoService;
 use PuneMirror\Services\StoryService;
 use PuneMirror\Services\UserStateService;
-use PuneMirror\Services\NotificationService;
 
 final class PageController
 {
-    public function __construct(private readonly View $view, private readonly StoryService $stories, private readonly UserStateService $users, private readonly NotificationService $notifications) {}
+    public function __construct(
+        private readonly View $view,
+        private readonly StoryService $stories,
+        private readonly UserStateService $users,
+        private readonly NotificationService $notifications,
+        private readonly JsonStore $store,
+        private readonly SeoService $seo,
+        private readonly PersonalizationService $personalization
+    ) {}
 
     public function home(): never
     {
-        $this->page('pages/home', ['stories' => $this->stories->feed(12), 'userState' => $this->users->state(), 'activeNav' => 'home']);
+        $state=$this->users->state();
+        $this->page('pages/home',[
+            'stories'=>$this->personalization->forYou(12),
+            'userState'=>$state,
+            'activeNav'=>'home',
+            'seo'=>$this->seo->site(),
+        ]);
     }
 
     public function explore(): never
     {
-        $this->page('pages/explore', ['stories' => $this->stories->feed(12), 'activeNav' => 'explore', 'userState' => $this->users->state()]);
+        $this->page('pages/explore',[
+            'stories'=>$this->stories->feed(12),
+            'activeNav'=>'explore',
+            'userState'=>$this->users->state(),
+            'seo'=>$this->seo->site('Explore Pune | Pune Mirror Now','Search Pune news by neighbourhood, topic and story.','/explore'),
+        ]);
     }
 
-    public function story(string $id): never
+    public function story(string $id): never { $this->renderStory($id); }
+    public function gallery(string $id): never { $this->renderStory($id); }
+    public function developing(string $id): never { $this->renderStory($id); }
+    public function live(string $id): never { $this->renderStory($id); }
+
+    public function canonicalStory(string $slug): never
     {
-        $story = $this->stories->find($id);
-        if (!$story) Response::html('<h1>Story not found</h1>', 404);
-        $this->page('pages/story', ['story' => $story, 'activeNav' => '', 'userState' => $this->users->state()]);
+        $pos=strrpos($slug,'--');
+        if($pos===false)Response::html('<h1>Story not found</h1>',404);
+        $this->renderStory(substr($slug,$pos+2));
     }
 
-    public function gallery(string $id): never
+    public function topic(string $kind,string $slug): never
     {
-        $story = $this->stories->find($id);
-        if (!$story) Response::html('<h1>Gallery not found</h1>', 404);
-        $this->page('pages/gallery', ['story' => $story, 'activeNav' => '', 'userState' => $this->users->state()]);
-    }
-
-    public function developing(string $id): never
-    {
-        $story = $this->stories->find($id);
-        if (!$story) Response::html('<h1>Developing story not found</h1>', 404);
-        $this->page('pages/developing', ['story' => $story, 'activeNav' => '', 'userState' => $this->users->state()]);
-    }
-
-    public function live(string $id): never
-    {
-        $story = $this->stories->find($id);
-        if (!$story) Response::html('<h1>Live story not found</h1>', 404);
-        $live = $this->stories->liveStoryByStory($id);
-        $this->page('pages/live', ['story' => $story, 'live' => $live, 'activeNav' => '', 'userState' => $this->users->state()]);
+        $collection=$kind==='area'?'locations':'categories';
+        $match=null;
+        foreach($this->store->all($collection) as $row){
+            if(strtolower((string)($row['slug']??''))===strtolower($slug)){$match=$row;break;}
+        }
+        if(!$match)Response::html('<h1>Topic not found</h1>',404);
+        $stories=$this->stories->taxonomyFeed($kind,$slug,30);
+        $this->page('pages/topic',[
+            'topic'=>$match,
+            'topicKind'=>$kind,
+            'stories'=>$stories,
+            'activeNav'=>'explore',
+            'userState'=>$this->users->state(),
+            'seo'=>$this->seo->topic($kind,(string)($match['name']??$slug),$slug),
+        ]);
     }
 
     public function watch(): never
     {
-        $reels = $this->stories->byType('reel', 10);
-        if (!$reels) $reels = array_slice($this->stories->feed(10), 0, 5);
-        $this->page('pages/watch', ['reels' => $reels, 'activeNav' => 'watch', 'userState' => $this->users->state()]);
+        $reels=$this->stories->byType('reel',10);
+        if(!$reels)$reels=array_slice($this->stories->feed(10),0,5);
+        $this->page('pages/watch',[
+            'reels'=>$reels,
+            'activeNav'=>'watch',
+            'userState'=>$this->users->state(),
+            'seo'=>$this->seo->site('Watch Pune | Pune Mirror Now','Visual Pune news and quick local updates.','/watch'),
+        ]);
     }
-
 
     public function notifications(): never
     {
-        $state = $this->users->state();
-        $rows = $this->notifications->forUser((string)$state['user']['id']);
-        $this->page('pages/notifications', ['notifications'=>$rows,'activeNav'=>'notifications','userState'=>$state]);
+        $state=$this->users->state();
+        $rows=$this->notifications->forUser((string)$state['user']['id']);
+        $this->page('pages/notifications',[
+            'notifications'=>$rows,
+            'activeNav'=>'notifications',
+            'userState'=>$state,
+            'seo'=>$this->seo->privatePage('Your alerts | Pune Mirror Now','/notifications'),
+        ]);
     }
 
     public function profile(): never
     {
-        $state = $this->users->state();
-        $all = $this->stories->feed(50);
-        $saved = array_values(array_filter($all, fn($s) => in_array($s['id'], $state['bookmark_story_ids'], true)));
-        $this->page('pages/profile', ['state' => $state, 'saved' => $saved, 'activeNav' => 'profile', 'userState' => $state]);
+        $state=$this->users->state();$saved=[];
+        foreach($state['bookmark_story_ids'] as $id)if($story=$this->stories->find((string)$id))$saved[]=$story;
+        $areas=$this->store->all('locations');$channels=$this->store->all('categories');
+        usort($areas,fn($a,$b)=>strcmp((string)($a['name']??''),(string)($b['name']??'')));
+        usort($channels,fn($a,$b)=>strcmp((string)($a['name']??''),(string)($b['name']??'')));
+        $this->page('pages/profile',[
+            'state'=>$state,
+            'saved'=>$saved,
+            'areas'=>$areas,
+            'channels'=>$channels,
+            'activeNav'=>'profile',
+            'userState'=>$state,
+            'seo'=>$this->seo->privatePage('My Pune | Pune Mirror Now','/profile'),
+        ]);
     }
 
-    private function page(string $contentView, array $data): never
+    private function renderStory(string $id): never
     {
-        $state = $data['userState'] ?? $this->users->state();
-        $unread = 0; foreach ($this->notifications->forUser((string)$state['user']['id']) as $n) if (empty($n['read_at'])) $unread++;
-        $data['userState'] = $state; $data['unreadNotifications'] = $unread;
-        $content = $this->view->render($contentView, $data);
-        $html = $this->view->render('layout', $data + ['content' => $content]);
+        $story=$this->stories->find($id);
+        if(!$story)Response::html('<h1>Story not found</h1>',404);
+        $data=['story'=>$story,'activeNav'=>'','userState'=>$this->users->state(),'seo'=>$this->seo->story($story)];
+        $view=match($story['type']??'article'){
+            'gallery'=>'pages/gallery',
+            'developing'=>'pages/developing',
+            'live'=>'pages/live',
+            default=>'pages/story',
+        };
+        if(($story['type']??'')==='live')$data['live']=$this->stories->liveStoryByStory($id);
+        $this->page($view,$data);
+    }
+
+    private function page(string $contentView,array $data):never
+    {
+        $state=$data['userState']??$this->users->state();
+        $unread=0;foreach($this->notifications->forUser((string)$state['user']['id']) as $n)if(empty($n['read_at']))$unread++;
+        $data['userState']=$state;$data['unreadNotifications']=$unread;
+        $data['seo']??=$this->seo->site();
+        $content=$this->view->render($contentView,$data);
+        $html=$this->view->render('layout',$data+['content'=>$content]);
         Response::html($html);
     }
 }

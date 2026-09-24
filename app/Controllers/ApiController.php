@@ -11,6 +11,7 @@ use PuneMirror\Services\UserStateService;
 use PuneMirror\Services\SearchIndexService;
 use PuneMirror\Services\NotificationService;
 use PuneMirror\Services\AnalyticsService;
+use PuneMirror\Services\PersonalizationService;
 
 final class ApiController
 {
@@ -22,7 +23,8 @@ final class ApiController
         private readonly array $config,
         private readonly SearchIndexService $searchIndex,
         private readonly NotificationService $notifications,
-        private readonly AnalyticsService $analytics
+        private readonly AnalyticsService $analytics,
+        private readonly PersonalizationService $personalization
     ) {}
 
     public function health(): never
@@ -39,7 +41,8 @@ final class ApiController
     {
         $limit = max(1, min(50, (int)($request->query['limit'] ?? 12)));
         $cursor=isset($request->query['cursor'])?(string)$request->query['cursor']:null;
-        $page=$this->stories->feedPage($limit,$cursor);
+        $mode=strtolower((string)($request->query['mode']??'latest'));
+        $page=$mode==='for-you'?$this->personalization->forYouPage($limit,$cursor):$this->stories->feedPage($limit,$cursor);
         $rows=$page['rows'];
         $channel = strtolower((string)($request->query['channel'] ?? ''));
         if ($channel && $channel !== 'for-you') {
@@ -100,6 +103,12 @@ final class ApiController
     }
 
     public function me(): never { Response::json($this->users->state()); }
+
+    public function updatePreferences(Request $request): never
+    {
+        $user=$this->users->updatePreferences((array)$request->body);
+        Response::json(['preferences'=>$user['preferences']??[]]);
+    }
 
     public function analytics(Request $request): never
     {
