@@ -174,8 +174,8 @@ window.gsap = gsap;
   if(prefForm){
     prefForm.addEventListener('submit',async(e)=>{
       e.preventDefault();
-      const areas=$('input[name="areas"]:checked',prefForm).map(x=>x.value);
-      const channels=$('input[name="channels"]:checked',prefForm).map(x=>x.value);
+      const areas=$$('input[name="areas"]:checked',prefForm).map(x=>x.value);
+      const channels=$$('input[name="channels"]:checked',prefForm).map(x=>x.value);
       const status=$('[data-preference-status]',prefForm);
       if(status)status.textContent='Saving…';
       try{

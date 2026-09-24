@@ -79,6 +79,8 @@ test('M9 discovery endpoints and NewsArticle metadata are crawlable', async ({ p
 });
 
 test('M10 My Pune preferences persist and shape reader state', async ({ page }) => {
+  const errors=[];
+  page.on('pageerror',err=>errors.push(err.message));
   await page.goto('/profile');
   const aundh=page.locator('input[name="areas"][value="Aundh"]');
   await page.locator('label.pref-option',{has:aundh}).click();
@@ -97,4 +99,5 @@ test('M10 My Pune preferences persist and shape reader state', async ({ page }) 
 
   await page.goto('/');
   await expect(page.locator('.personalization-strip')).toContainText('Aundh');
+  expect(errors).toEqual([]);
 });
