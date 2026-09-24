@@ -135,3 +135,30 @@
 - [ ] external outage/emergency ingestion contracts
 - [ ] utility data expiry/staleness automation
 - [ ] production source-level SLA and freshness telemetry
+
+
+## M13 — Community — IN PROGRESS
+- [x] separate moderated community post domain
+- [x] neighbourhood-scoped public feed
+- [x] reader submission + reporting contracts
+- [x] moderation queue/action API
+- [x] public Community surface
+- [ ] newsroom Community desk UI
+- [ ] browser regression coverage
+
+## M14 — Utility Expansion — IN PROGRESS
+- [x] utility freshness policy service
+- [x] kind-specific live/stale/expired TTL states
+- [ ] official provider adapters
+- [ ] ingestion idempotency and source SLA telemetry
+- [ ] expiry automation surfaced in Utility Desk
+
+## M15 — Events — IN PROGRESS
+- [x] separate structured event domain
+- [x] public-only upcoming event discovery
+- [x] provenance URL validation
+- [x] public Events surface and API
+- [x] newsroom event creation API
+- [ ] newsroom Events desk UI
+- [ ] My Pune event ranking/save/reminders
+- [ ] browser regression coverage
