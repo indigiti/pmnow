@@ -21,13 +21,27 @@ final class FileStoryRepository implements StoryRepository
 
     public function latest(int $limit = 20, ?string $type = null): array
     {
+        return $this->page($limit, $type)['rows'];
+    }
+
+    public function page(int $limit = 20, ?string $type = null, ?string $cursor = null): array
+    {
+        $limit=max(1,min(50,$limit));
         $name = $type ? 'type-' . $type : 'feed-latest';
         $index = $this->indexes->read($name);
         if (!$index) { $this->rebuildIndexes(); $index = $this->indexes->read($name); }
-        $ids = array_slice($index['ids'] ?? [], 0, $limit);
-        $rows = [];
-        foreach ($ids as $id) if ($row = $this->find($id)) $rows[] = $row;
-        return $rows;
+        $ids=array_values($index['ids']??[]);
+        $offset=0;
+        if($cursor){
+            $position=array_search($cursor,$ids,true);
+            if($position!==false)$offset=$position+1;
+        }
+        $slice=array_slice($ids,$offset,$limit+1);
+        $hasMore=count($slice)>$limit;
+        if($hasMore)array_pop($slice);
+        $rows=[];foreach($slice as $id)if($row=$this->find((string)$id))$rows[]=$row;
+        $nextCursor=$hasMore&&$slice?(string)end($slice):null;
+        return ['rows'=>$rows,'has_more'=>$hasMore,'next_cursor'=>$nextCursor];
     }
 
     public function all(): array

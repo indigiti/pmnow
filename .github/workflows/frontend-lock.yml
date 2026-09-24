@@ -1,0 +1,35 @@
+name: PMNow Frontend Lockfile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Generate npm lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit lockfile when changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package-lock.json && git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
+            echo "package-lock.json already current"
+            exit 0
+          fi
+          git config user.name "pmnow-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "Lock M8.1 frontend dependencies"
+          git push origin HEAD:main

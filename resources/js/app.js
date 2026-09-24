@@ -25,6 +25,13 @@ window.gsap = gsap;
   const esc = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
   const scrollBehavior = reducedMotion ? 'auto' : 'smooth';
+  const track=(event,properties={})=>fetch(urlFor('/api/v1/analytics/events'),{
+    method:'POST',
+    headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-Token':csrf()},
+    body:JSON.stringify({event,properties}),
+    keepalive:true
+  }).catch(()=>{});
+  track('page_view',{path:location.pathname,referrer:document.referrer||''});
 
   document.addEventListener('click', async (e) => {
     const back = e.target.closest('[data-back]');
@@ -44,6 +51,7 @@ window.gsap = gsap;
           const label = b.querySelector('span');
           if (label) label.textContent = data.bookmarked ? 'Saved' : 'Save';
         });
+        track('bookmark',{story_id:save.dataset.bookmark,active:!!data.bookmarked});
         toast(data.bookmarked ? 'Saved to My Pune' : 'Removed from saved');
       } catch(err) { toast(err.message); }
     }
@@ -58,6 +66,7 @@ window.gsap = gsap;
           const label=b.querySelector('span');
           if(label) label.textContent=data.followed?'Following':(b.dataset.followLabel||'Follow');
         });
+        track('follow',{story_id:follow.dataset.follow,active:!!data.followed});
         toast(data.followed ? 'You are following this story' : 'Story unfollowed');
       } catch(err) { toast(err.message); }
     }
@@ -79,6 +88,7 @@ window.gsap = gsap;
       e.preventDefault();
       const absolute = new URL(share.dataset.shareUrl || '/', location.origin).href;
       const title = share.dataset.shareTitle || document.title;
+      track('share',{path:share.dataset.shareUrl||location.pathname});
       try {
         if (navigator.share) {
           await navigator.share({title, url:absolute});
@@ -129,6 +139,7 @@ window.gsap = gsap;
     searchForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = input.value.trim(); if (!q) return;
+      track('search',{q});
       const box = $('#searchResults'); box.hidden=false; box.innerHTML='<div class="skeleton" style="height:90px;border-radius:14px"></div>';
       try {
         const rows = await api(`/api/v1/search?q=${encodeURIComponent(q)}`);
@@ -142,6 +153,17 @@ window.gsap = gsap;
     });
   }
 
+  const storyCards=$('[data-story-id]');
+  if('IntersectionObserver' in window && storyCards.length){
+    const seen=new Set();
+    const io=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(!entry.isIntersecting||entry.intersectionRatio<.6)return;
+      const id=entry.target.dataset.storyId;if(!id||seen.has(id))return;
+      seen.add(id);track('story_impression',{story_id:id,path:location.pathname});io.unobserve(entry.target);
+    }),{threshold:[.6]});
+    storyCards.forEach(card=>io.observe(card));
+  }
+
   // Gallery horizontal swipe / drag.
   const gallery = $('[data-gallery]');
   if (gallery) {
@@ -152,6 +174,7 @@ window.gsap = gsap;
       track.style.transition=animate?'transform .34s cubic-bezier(.2,.8,.2,1)':'none';
       track.style.transform=`translateX(${-index*100}%)`;
       dots.forEach((d,i)=>d.classList.toggle('active',i===index)); if(counter) counter.textContent=index+1;
+      if(slides.length>1&&index===slides.length-1)track('gallery_complete',{slides:slides.length,path:location.pathname});
     };
     gallery.addEventListener('pointerdown',e=>{dragging=true;startX=e.clientX;delta=0;gallery.setPointerCapture?.(e.pointerId);track.style.transition='none';});
     gallery.addEventListener('pointermove',e=>{if(!dragging)return;delta=e.clientX-startX;track.style.transform=`translateX(calc(${-index*100}% + ${delta}px))`;});
@@ -183,11 +206,17 @@ window.gsap = gsap;
   }
 
   // Reels: native scroll snap; tap empty media area to toggle paused treatment.
-  $$('.reel').forEach(reel=>reel.addEventListener('click',e=>{
+  $('.reel').forEach((reel,i)=>{
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting&&entry.intersectionRatio>.7){track('reel_view',{index:i,path:location.pathname});io.disconnect();}}),{threshold:[.7]});
+      io.observe(reel);
+    }
+    reel.addEventListener('click',e=>{
     if(e.target.closest('a,button')) return;
     reel.classList.toggle('paused'); reel.querySelector('img').style.filter=reel.classList.contains('paused')?'brightness(.48)':'brightness(.76)';
     toast(reel.classList.contains('paused')?'Paused':'Playing');
-  }));
+  });
+  });
 })();
 
 // M6 notification read interaction

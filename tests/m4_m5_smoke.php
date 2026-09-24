@@ -22,7 +22,7 @@ $assert($python->available(),'FastAPI content engine reachable');
 $sourceRepo=new FileSourceRepository($store); $sources=new SourceService($sourceRepo,$python);
 $assert(count($sources->all())>=5,'provider source configurations seeded');
 $storyRepo=new FileStoryRepository($store,new IndexManager($root.'/storage/indexes'));
-$contentRepo=new FileContentRepository($store); $analysisRepo=new FileAnalysisRepository($store); $clusterRepo=new FileClusterRepository($store);
+$contentRepo=new FileContentRepository($store,new IndexManager($root.'/storage/indexes')); $analysisRepo=new FileAnalysisRepository($store); $clusterRepo=new FileClusterRepository($store);
 $hub=new ContentHubService($contentRepo,$analysisRepo,$clusterRepo,new FileMediaRepository($store),$storyRepo,$sources,$store,$python,$config);
 
 $first=$hub->manualImport([

@@ -10,6 +10,7 @@ use PuneMirror\Services\StoryService;
 use PuneMirror\Services\UserStateService;
 use PuneMirror\Services\SearchIndexService;
 use PuneMirror\Services\NotificationService;
+use PuneMirror\Services\AnalyticsService;
 
 final class ApiController
 {
@@ -20,7 +21,8 @@ final class ApiController
         private readonly RuntimeStore $runtime,
         private readonly array $config,
         private readonly SearchIndexService $searchIndex,
-        private readonly NotificationService $notifications
+        private readonly NotificationService $notifications,
+        private readonly AnalyticsService $analytics
     ) {}
 
     public function health(): never
@@ -36,7 +38,9 @@ final class ApiController
     public function feed(Request $request): never
     {
         $limit = max(1, min(50, (int)($request->query['limit'] ?? 12)));
-        $rows = $this->stories->feed($limit);
+        $cursor=isset($request->query['cursor'])?(string)$request->query['cursor']:null;
+        $page=$this->stories->feedPage($limit,$cursor);
+        $rows=$page['rows'];
         $channel = strtolower((string)($request->query['channel'] ?? ''));
         if ($channel && $channel !== 'for-you') {
             $rows = array_values(array_filter($rows, function($s) use ($channel) {
@@ -44,7 +48,7 @@ final class ApiController
                 return str_contains($hay, $channel);
             }));
         }
-        Response::json($rows, 200, ['has_more' => false, 'next_cursor' => null]);
+        Response::json($rows,200,['has_more'=>(bool)$page['has_more'],'next_cursor'=>$page['next_cursor']]);
     }
 
     public function story(string $id): never
@@ -96,6 +100,17 @@ final class ApiController
     }
 
     public function me(): never { Response::json($this->users->state()); }
+
+    public function analytics(Request $request): never
+    {
+        $user=$this->users->currentUser();
+        try{
+            $row=$this->analytics->track((string)$user['id'],(string)($request->body['event']??''),(array)($request->body['properties']??[]));
+            Response::json(['accepted'=>true,'event'=>$row['event']],202);
+        }catch(\Throwable $e){
+            Response::error('ANALYTICS_EVENT_REJECTED',$e->getMessage(),422);
+        }
+    }
 
     public function toggleBookmark(string $storyId): never
     {

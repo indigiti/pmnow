@@ -34,7 +34,17 @@ final class StoryService
 
     public function feed(int $limit = 20): array
     {
-        return array_map(fn($s) => $this->hydrate($s), $this->stories->latest($limit));
+        return $this->feedPage($limit)['rows'];
+    }
+
+    public function feedPage(int $limit = 20, ?string $cursor = null): array
+    {
+        $page=$this->stories->page($limit,null,$cursor);
+        return [
+            'rows'=>array_map(fn($s)=>$this->hydrate($s),$page['rows']??[]),
+            'has_more'=>(bool)($page['has_more']??false),
+            'next_cursor'=>$page['next_cursor']??null,
+        ];
     }
 
     public function byType(string $type, int $limit = 20): array

@@ -26,7 +26,7 @@ use PuneMirror\Services\WorkerService;
 
 $app=require dirname(__DIR__).'/bootstrap/app.php'; $root=$app['root']; $config=$app['config'];
 $store=new JsonStore($root.'/storage/data'); $indexes=new IndexManager($root.'/storage/indexes');
-$storyRepo=new FileStoryRepository($store,$indexes); $mediaRepo=new FileMediaRepository($store); $sourceRepo=new FileSourceRepository($store); $contentRepo=new FileContentRepository($store); $analysisRepo=new FileAnalysisRepository($store); $clusterRepo=new FileClusterRepository($store); $editorialRepo=new FileEditorialRepository($store); $jobRepo=new FileJobRepository($store);
+$storyRepo=new FileStoryRepository($store,$indexes); $mediaRepo=new FileMediaRepository($store); $sourceRepo=new FileSourceRepository($store); $contentRepo=new FileContentRepository($store,$indexes); $analysisRepo=new FileAnalysisRepository($store); $clusterRepo=new FileClusterRepository($store); $editorialRepo=new FileEditorialRepository($store); $jobRepo=new FileJobRepository($store);
 $python=new PythonClient($config['engine']['url'],$config['engine']['timeout']); $sourceService=new SourceService($sourceRepo,$python);
 $hub=new ContentHubService($contentRepo,$analysisRepo,$clusterRepo,$mediaRepo,$storyRepo,$sourceService,$store,$python,$config);
 $editorial=new EditorialService($contentRepo,$editorialRepo,$hub,$store); $auth=new AdminAuthService($store,$config); $storyService=new StoryService($storyRepo,$mediaRepo,$store); $search=new SearchIndexService($storyRepo,$store,$indexes,$storyService); $notifications=new NotificationService($store); $scheduler=new SchedulerService($sourceRepo,$jobRepo); $worker=new WorkerService($jobRepo,$hub);

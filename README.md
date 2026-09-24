@@ -5,7 +5,7 @@ PMNow is the mobile-first Pune Mirror visual news application and multi-source c
 ## Runtime stack
 
 - PHP 8.x application/API/router
-- Tailwind CSS + Alpine.js + GSAP + Vite frontend
+- Tailwind CSS + GSAP + Vite frontend
 - Python/FastAPI provider and intelligence engine
 - Redis optional runtime cache/queue/pub-sub
 - No-DB filesystem persistence by default; database adapter boundary retained
@@ -61,3 +61,7 @@ bash ops/package-release.sh
 ```
 
 The staged deployable tree is written to `dist/pmnow/`.
+
+## M8.1 growth foundation
+
+M8.1 adds browser-level certification, cursor feed pagination, a privacy-conscious JSONL analytics ledger, concurrent-safe derived indexes, and indexed provider external-ID lookup. Playwright browser smoke covers the M8 channel interaction that syntax-only CI could not detect.
