@@ -83,7 +83,7 @@ window.gsap = gsap;
       utilityFollow.disabled=true;
       try{
         const data=await api(`/api/v1/utility/entities/${utilityFollow.dataset.utilityFollow}/follow`,{method:'POST',body:'{}'});
-        $('[data-utility-follow="'+utilityFollow.dataset.utilityFollow+'"]').forEach(button=>{
+        $$('[data-utility-follow="'+utilityFollow.dataset.utilityFollow+'"]').forEach(button=>{
           button.classList.toggle('on',data.followed);
           const label=button.querySelector('span');if(label)label.textContent=data.followed?'Following':'Follow';
         });
