@@ -13,7 +13,13 @@ window.gsap = gsap;
   };
   const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
   const base = () => document.querySelector('meta[name="app-base-path"]')?.content || '';
-  const urlFor = (path='') => /^https?:\/\//i.test(path) ? path : `${base()}${path.startsWith('/')?path:`/${path}`}`;
+  const urlFor = (path='') => {
+    if (/^https?:\/\//i.test(path)) return path;
+    const b=base();
+    const normalized=path.startsWith('/')?path:`/${path}`;
+    if(b&&(normalized===b||normalized.startsWith(`${b}/`)))return normalized;
+    return `${b}${normalized}`;
+  };
   const api = async (url, options={}) => {
     const headers={'Accept':'application/json','Content-Type':'application/json',...(options.headers||{})};
     if ((options.method||'GET').toUpperCase() !== 'GET') headers['X-CSRF-Token']=csrf();
