@@ -9,7 +9,7 @@ final class UtilityService
     private const KINDS=['traffic','transit','weather','air','civic','outage','emergency','event'];
     private const SEVERITIES=['info','advisory','major','critical'];
 
-    public function __construct(private readonly JsonStore $store,private readonly NotificationService $notifications){}
+    public function __construct(private readonly JsonStore $store,private readonly NotificationService $notifications,private readonly ?UtilityFreshnessService $freshness=null){}
 
     public function entities(?string $kind=null):array
     {
@@ -208,6 +208,7 @@ final class UtilityService
     private function decorateUpdate(array $row,array $entity):array
     {
         $row['entity']=$entity;
+        $row['freshness']=$this->freshness?->state($row+['entity'=>$entity])??null;
         $row['path']='/utility/'.($entity['slug']??'');
         return $row;
     }

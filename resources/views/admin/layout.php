@@ -7,6 +7,8 @@ $nav=[
   ['/admin/jobs','follow','Jobs & Scheduler'],
   ['/admin/distribution','bell','Distribution'],
   ['/admin/utility','pin','Utility Desk'],
+  ['/admin/community','grid','Community Desk'],
+  ['/admin/events','grid','Events Desk'],
   ['/admin/system','heart','System Health'],
   ['/admin/errors','bell','Error Center'],
   ['/admin/notifications','bell','Notifications'],
