@@ -30,7 +30,8 @@ final class DiscoveryController
             $urls[]=['loc'=>pm_absolute_url(pm_story_path($story)),'lastmod'=>(string)($story['updated_at']??$story['published_at']??gmdate('c'))];
         }
         header('Content-Type: application/xml; charset=utf-8');
-        echo "<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n";
+        echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
         foreach($urls as $u)echo '<url><loc>'.$this->x($u['loc']).'</loc><lastmod>'.$this->x($u['lastmod'])."</lastmod></url>\n";
         echo "</urlset>\n";exit;
     }
@@ -46,7 +47,8 @@ final class DiscoveryController
             if(count($rows)>=1000)break;
         }
         header('Content-Type: application/xml; charset=utf-8');
-        echo "<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n";
+        echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'."\n";
         foreach($rows as $story){
             echo '<url><loc>'.$this->x(pm_absolute_url(pm_story_path($story))).'</loc><news:news><news:publication><news:name>Pune Mirror</news:name><news:language>en</news:language></news:publication><news:publication_date>'.$this->x((string)$story['published_at']).'</news:publication_date><news:title>'.$this->x((string)($story['headline']??'Pune news'))."</news:title></news:news></url>\n";
         }
@@ -57,7 +59,8 @@ final class DiscoveryController
     {
         $rows=$this->storyService->feed(50);
         header('Content-Type: application/rss+xml; charset=utf-8');
-        echo "<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>Pune Mirror Now</title><link>".$this->x(pm_absolute_url('/'))."</link><description>Pune news, traffic, civic and neighbourhood updates.</description>";
+        echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        echo '<rss version="2.0"><channel><title>Pune Mirror Now</title><link>'.$this->x(pm_absolute_url('/')).'</link><description>Pune news, traffic, civic and neighbourhood updates.</description>';
         foreach($rows as $story){
             echo '<item><title>'.$this->x((string)$story['headline']).'</title><link>'.$this->x(pm_absolute_url(pm_story_path($story))).'</link><guid isPermaLink="true">'.$this->x(pm_absolute_url(pm_story_path($story))).'</guid><pubDate>'.gmdate(DATE_RSS,strtotime((string)($story['published_at']??'now'))).'</pubDate><description>'.$this->x((string)($story['deck']??'')).'</description></item>';
         }
