@@ -186,6 +186,21 @@ window.gsap = gsap;
     storyCards.forEach(card=>io.observe(card));
   }
 
+  const communityForm=$('[data-community-form]');
+  if(communityForm){
+    communityForm.addEventListener('submit',async(e)=>{
+      e.preventDefault();const status=$('[data-community-status]',communityForm);if(status)status.textContent='Submitting…';
+      const payload=Object.fromEntries(new FormData(communityForm).entries());
+      try{await api('/api/v1/community',{method:'POST',body:JSON.stringify(payload)});communityForm.reset();if(status)status.textContent='Submitted for moderation';toast('Community post submitted for review');}
+      catch(err){if(status)status.textContent='Could not submit';toast(err.message);}
+    });
+  }
+  $('[data-community-report]').forEach(button=>button.addEventListener('click',async()=>{
+    const reason=window.prompt('Why are you reporting this community post?');if(!reason)return;
+    try{await api('/api/v1/community/'+button.dataset.communityReport+'/report',{method:'POST',body:JSON.stringify({reason})});button.disabled=true;button.textContent='Reported';toast('Report sent to moderation');}
+    catch(err){toast(err.message);}
+  }));
+
   const prefForm=$('[data-preferences]');
   if(prefForm){
     prefForm.addEventListener('submit',async(e)=>{
