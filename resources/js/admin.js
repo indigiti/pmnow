@@ -34,6 +34,8 @@
   qa('[data-resolve-utility-update]').forEach(b=>b.addEventListener('click',async()=>{
     b.disabled=true;try{await api(`/api/admin/utility/updates/${b.dataset.resolveUtilityUpdate}/resolve`,{method:'POST',body:'{}'});toast('Utility update resolved');location.reload();}catch(err){toast(err.message);}finally{b.disabled=false;}
   }));
+  qa('[data-community-moderate]').forEach(b=>b.addEventListener('click',async()=>{b.disabled=true;try{await api('/api/admin/community/'+b.dataset.communityId+'/moderate',{method:'POST',body:JSON.stringify({action:b.dataset.communityModerate})});toast('Community moderation saved');location.reload();}catch(e){toast(e.message);}finally{b.disabled=false;}}));
+  q('[data-create-event]')?.addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const data=Object.fromEntries(new FormData(f));data.is_public=!!q('[name=is_public]',f)?.checked;try{await api('/api/admin/events',{method:'POST',body:JSON.stringify(data)});toast('Event published');location.reload();}catch(err){toast(err.message);}});
   qa('[data-distribute-story]').forEach(b=>b.addEventListener('click',async()=>{
     b.disabled=true;
     try{
