@@ -67,6 +67,18 @@ set_exception_handler(function(\Throwable $e): void {
     echo '<h1>500</h1><p>Application bootstrap failed.</p>';
 });
 if($root===$deployedRoot){
+    // Read private staging settings before applying secure production defaults.
+    // FPM/server environment variables retain precedence over .env file values.
+    $privateEnv=$root.'/.env';
+    if(is_file($privateEnv)){
+        foreach(file($privateEnv,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)?:[] as $line){
+            $line=trim($line);
+            if($line===''||str_starts_with($line,'#')||!str_contains($line,'='))continue;
+            [$k,$v]=array_map('trim',explode('=',$line,2));
+            if(!preg_match('/^[A-Z][A-Z0-9_]*$/',$k))continue;
+            if(pm_env($k,null)===null)pm_env_set($k,trim($v,"\\\"'"));
+        }
+    }
     $defaults=[
         'APP_ENV'=>'production','APP_DEBUG'=>'false','APP_BASE_PATH'=>'/pmnow',
         'PERSISTENCE_DRIVER'=>'file','RUNTIME_DRIVER'=>'file','SSE_ENABLED'=>'false',
@@ -89,6 +101,10 @@ if($root===$deployedRoot){
 }
 $app=require $root.'/bootstrap/app.php';$root=$app['root'];$config=$app['config'];
 SecurityHeaders::apply($config);
+
+// Only staging with an explicit private opt-in auto-populates synthetic stories.
+// Publishing uses the reader's existing 'published' contract; no editorial approval.
+(new DemoFixtureService($root,$config))->ensureStagingSeeded();
 
 $store=new JsonStore($root.'/storage/data');$indexes=new IndexManager($root.'/storage/indexes');
 $storyRepo=new FileStoryRepository($store,$indexes);$mediaRepo=new FileMediaRepository($store);$userRepo=new FileUserStateRepository($store);$sourceRepo=new FileSourceRepository($store);$contentRepo=new FileContentRepository($store,$indexes);$analysisRepo=new FileAnalysisRepository($store);$clusterRepo=new FileClusterRepository($store);$editorialRepo=new FileEditorialRepository($store);$jobRepo=new FileJobRepository($store);
