@@ -4,6 +4,10 @@
     <button class="chip <?= $i===0?'active':'' ?>" type="button" data-channel="<?= pm_e(strtolower(str_replace(' ','-',$channel))) ?>"><?= pm_e($channel) ?></button>
   <?php endforeach; ?>
 </div>
+<section class="news-edition-heading" aria-label="Today's Pune edition">
+  <div><span class="pm-kicker">Your city. Your stories.</span><h1>Discover Pune, <em>today.</em></h1></div>
+  <a href="<?=pm_e(pm_url('/area-map'))?>" class="news-map-link"><?=pm_icon('pin','sm')?> Area pulse <?=pm_icon('arrow-right','sm')?></a>
+</section>
 <?php $homePrefs=array_values(array_filter(array_merge($userState['user']['preferences']['areas']??[],$userState['user']['preferences']['channels']??[]))); ?>
 <div class="personalization-strip"><span><b>For You</b><?= $homePrefs?' · '.pm_e(implode(' · ',array_slice($homePrefs,0,3))):' · Pune' ?></span><div class="personalization-links"><a href="<?=pm_e(pm_url('/utility'))?>">Pune Utility</a><?php if(!empty($userState['user']['preferences']['areas'])): ?><a href="<?=pm_e(pm_url('/near-you'))?>">Near You</a><?php endif; ?><a href="<?=pm_e(pm_url('/profile'))?>">Tune My Pune</a></div></div>
 <main id="feed" class="scroll withnav feed">
