@@ -29,10 +29,10 @@ final class StoryService
             $story['headline'] = trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu', '', $rawHeadline) ?? $rawHeadline));
             // Existing fixture rows may still contain this wording. Keep data
             // immutable and normalize only reader-facing presentation fields.
-            $story['headline'] = (string)(preg_replace('/\\bsample\\b/iu','test',$story['headline']) ?? $story['headline']);
+            $story['headline'] = $this->replaceSampleWord($story['headline']);
             foreach (['deck','body'] as $field) {
                 if (isset($story[$field]) && is_string($story[$field])) {
-                    $story[$field] = (string)(preg_replace('/\\bsample\\b/iu','test',$story[$field]) ?? $story[$field]);
+                    $story[$field] = $this->replaceSampleWord($story[$field]);
                 }
             }
             if (preg_match('/\\bDEMO\\b/i', (string)($story['display_time'] ?? ''))) {
@@ -140,6 +140,19 @@ final class StoryService
      * Existing fixture timeline records can predate the UI refresh. Only
      * normalize their public presentation, never modify stored editorial data.
      */
+    private function replaceSampleWord(string $text): string
+    {
+        // Preserve headline/title capitalization in old synthetic fixtures.
+        return (string)(preg_replace_callback('/\\bsample\\b/iu',
+            static function(array $match):string {
+                return match($match[0]) {
+                    'SAMPLE'=>'TEST',
+                    'Sample'=>'Test',
+                    default=>'test',
+                };
+            }, $text) ?? $text);
+    }
+
     private function cleanSyntheticUpdate(array $row): array
     {
         $raw=(string)($row['headline']??$row['title']??'');
@@ -149,7 +162,7 @@ final class StoryService
         foreach(['headline','title','summary','body'] as $key){
             if (!isset($row[$key])||!is_string($row[$key])) continue;
             $value=(string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu','',$row[$key])??$row[$key]);
-            $row[$key]=(string)(preg_replace('/\\bsample\\b/iu','test',$value)??$value);
+            $row[$key]=$this->replaceSampleWord($value);
         }
         return $row;
     }
