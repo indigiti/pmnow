@@ -48,6 +48,7 @@ jobs:
           python -m compileall -q engine
           PYTHONPATH=. python engine/tests/smoke.py
           PYTHONPATH=. python tests/m7_engine_smoke.py
+          PYTHONPATH=. python tests/area_location_smoke.py
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -77,6 +78,7 @@ jobs:
           php tests/m9_m10_smoke.php
           php tests/m11_smoke.php
           php tests/m12_smoke.php
+          php tests/area_pulse_smoke.php
           rm -f .env
 
       - name: Browser smoke
