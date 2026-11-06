@@ -7,6 +7,15 @@
       <fieldset>
         <legend>My neighbourhoods</legend>
         <p class="pm-muted">Choose the Pune areas that should receive extra weight in your For You feed.</p>
+        <div class="geo-area-recommendation">
+          <button type="button" class="btn geo-area-button" data-find-area><?=pm_icon('pin','sm')?> Suggest my nearby area</button>
+          <span class="geo-area-note" role="status" data-geo-status>Your approximate location is used once, only with permission. It is not saved.</span>
+        </div>
+        <div class="geo-area-centers" hidden aria-hidden="true">
+          <?php foreach($areaChoices??[] as $candidate): ?>
+            <span data-geo-area="<?=pm_e($candidate['name'])?>" data-geo-lat="<?= (float)$candidate['lat'] ?>" data-geo-lon="<?= (float)$candidate['lon'] ?>"></span>
+          <?php endforeach; ?>
+        </div>
         <div class="pref-grid">
           <?php $selectedAreas=array_map('strtolower',$state['user']['preferences']['areas']??[]); foreach($areas as $area): $name=(string)($area['name']??''); ?>
           <label class="pref-option"><input type="checkbox" name="areas" value="<?=pm_e($name)?>" <?=in_array(strtolower($name),$selectedAreas,true)?'checked':''?>><span class="chip"><?=pm_e($name)?></span></label>
@@ -41,5 +50,5 @@
     </form>
   </section>
   <section class="sect"><div class="secttitle"><div><span class="pm-kicker">Library</span><h2>Saved stories</h2></div><span class="link"><?= count($saved) ?> saved</span></div></section>
-  <section class="saved-list"><?php if(!$saved): ?><div class="empty">Save a story from Home, Gallery, Live or Watch and it will appear here.</div><?php endif; ?><?php foreach($saved as $story): $m=$story['media'][0]??null; ?><a class="saved-row" href="<?= pm_e(pm_story_path($story)) ?>"><img src="<?= pm_e(pm_media($m)) ?>" alt="<?=pm_e($story['headline']??'Saved Pune story')?>" loading="lazy"><div><small><?= pm_e($story['categories'][0]['name']??'Pune') ?></small><h3><?= pm_e($story['headline']) ?></h3><small><?=pm_icon('pin','sm')?> <?= pm_e($story['locations'][0]['name']??'Pune') ?></small></div></a><?php endforeach; ?></section>
+  <section class="saved-list"><?php if(!$saved): ?><div class="empty">Save a story from Home, Gallery, Live or Watch and it will appear here.</div><?php endif; ?><?php foreach($saved as $story): $m=$story['media'][0]??null; ?><a class="saved-row" href="<?= pm_e(pm_story_path($story)) ?>"><img src="<?= pm_e(pm_media($m)) ?>" alt="<?=pm_e($story['headline']??'Saved Pune story')?>" loading="lazy"><div><small><?= pm_e($story['categories'][0]['name']??'Pune') ?></small><?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?><h3><?= pm_e($story['headline']) ?></h3><small><?=pm_icon('pin','sm')?> <?= pm_e($story['locations'][0]['name']??'Pune') ?></small></div></a><?php endforeach; ?></section>
 </main>

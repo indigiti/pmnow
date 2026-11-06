@@ -32,6 +32,9 @@ $robots=(string)($seo['robots']??'index,follow,max-image-preview:large');
 <meta name="twitter:description" content="<?=pm_e($description)?>">
 <meta name="twitter:image" content="<?=pm_e($image)?>">
 <?php if(!empty($seo['json_ld'])): ?><script type="application/ld+json"><?=json_encode($seo['json_ld'],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG|JSON_HEX_AMP)?></script><?php endif; ?>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="<?=pm_e(pm_asset('resources/css/app.css','/assets/app.css'))?>">
 </head>
 <body>
@@ -45,6 +48,7 @@ $robots=(string)($seo['robots']??'index,follow,max-image-preview:large');
     <nav class="desktop-nav">
       <a href="<?=pm_e(pm_url('/'))?>" <?=($activeNav??'')==='home'?'aria-current="page"':''?>><?=pm_icon('home')?> <span>Home</span></a>
       <a href="<?=pm_e(pm_url('/explore'))?>" <?=($activeNav??'')==='explore'?'aria-current="page"':''?>><?=pm_icon('search')?> <span>Explore</span></a>
+      <a href="<?=pm_e(pm_url('/area-map'))?>"><?=pm_icon('pin')?> <span>Area Pulse</span></a>
       <a href="<?=pm_e(pm_url('/watch'))?>"><?=pm_icon('play')?> <span>Watch</span></a>
       <a href="<?=pm_e(pm_url('/notifications'))?>" <?=($activeNav??'')==='notifications'?'aria-current="page"':''?>><?=pm_icon('bell')?> <span>Alerts</span></a>
       <a href="<?=pm_e(pm_url('/profile'))?>" <?=($activeNav??'')==='profile'?'aria-current="page"':''?>><?=pm_icon('user')?> <span>My Pune</span></a>

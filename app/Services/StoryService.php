@@ -19,6 +19,24 @@ final class StoryService
         $story['categories'] = $this->resolve('categories', $story['category_ids'] ?? []);
         $story['locations'] = $this->resolve('locations', $story['location_ids'] ?? []);
         $story['source'] = isset($story['source_id']) ? $this->store->get('sources', (string)$story['source_id']) : null;
+        // Presentation-only: keep the original synthetic marker in storage while
+        // replacing the headline prefix with a consistent accessible badge in views.
+        // Never apply this to an ordinary published news story.
+        $rawHeadline = (string)($story['headline'] ?? '');
+        $sampleByPrefix = preg_match('/^\\s*\\[DEMO\\](?:\\s+|$)/iu', $rawHeadline) === 1;
+        $story['is_sample'] = ($story['demo_fixture_suite'] ?? '') === 'pmnow-safe-demo-v1' || $sampleByPrefix;
+        if ($story['is_sample']) {
+            $story['headline'] = trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu', '', $rawHeadline) ?? $rawHeadline));
+            if (preg_match('/\\bDEMO\\b/i', (string)($story['display_time'] ?? ''))) {
+                $story['display_time'] = 'Illustrative only';
+            }
+            if (isset($story['author']) && is_string($story['author'])) {
+                $story['author'] = preg_replace('/\\bDEMO\\b/i', 'Sample', $story['author']);
+            }
+            if (is_array($story['source']) && isset($story['source']['name'])) {
+                $story['source']['name'] = preg_replace('/\\bDEMO\\b/i', 'Sample', (string)$story['source']['name']);
+            }
+        }
         $story['cluster'] = isset($story['story_cluster_id']) && $story['story_cluster_id'] ? $this->store->get('story-clusters', (string)$story['story_cluster_id']) : null;
         if (($story['type'] ?? '') === 'developing') {
             $story['updates'] = $this->storyUpdates($story['id']);

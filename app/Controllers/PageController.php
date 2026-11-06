@@ -10,6 +10,7 @@ use PuneMirror\Services\SeoService;
 use PuneMirror\Services\StoryService;
 use PuneMirror\Services\UserStateService;
 use PuneMirror\Services\UtilityService;
+use PuneMirror\Services\AreaPulseService;
 use PuneMirror\Core\Request;
 
 final class PageController
@@ -22,7 +23,8 @@ final class PageController
         private readonly JsonStore $store,
         private readonly SeoService $seo,
         private readonly PersonalizationService $personalization,
-        private readonly ?UtilityService $utility=null
+        private readonly ?UtilityService $utility=null,
+        private readonly ?AreaPulseService $areaPulse=null
     ) {}
 
     public function home(): never
@@ -33,6 +35,20 @@ final class PageController
             'userState'=>$state,
             'activeNav'=>'home',
             'seo'=>$this->seo->site(),
+        ]);
+    }
+
+    public function areaMap():never
+    {
+        if(!$this->areaPulse)Response::html('<h1>Area discovery unavailable</h1>',503);
+        $state=$this->users->state();
+        $rows=$this->areaPulse->areas((array)($state['user']['preferences']['areas']??[]),7);
+        $this->page('pages/area-map',[
+            'areaRows'=>$rows,
+            'areaTotals'=>$this->areaPulse->totals($rows),
+            'userState'=>$state,
+            'activeNav'=>'explore',
+            'seo'=>$this->seo->site('Pune Area Pulse | Pune Mirror Now','Discover reporting by Pune and PCMC neighbourhoods. News reports are not measured traffic congestion.','/area-map'),
         ]);
     }
 
@@ -162,6 +178,7 @@ final class PageController
             'saved'=>$saved,
             'areas'=>$areas,
             'channels'=>$channels,
+            'areaChoices'=>$this->areaPulse?->centers()??[],
             'activeNav'=>'profile',
             'userState'=>$state,
             'seo'=>$this->seo->privatePage('My Pune | Pune Mirror Now','/profile'),

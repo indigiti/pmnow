@@ -13,7 +13,7 @@ final class SecurityHeaders
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
         header('Referrer-Policy: strict-origin-when-cross-origin');
-        header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+        header('Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=()');
         header('Cross-Origin-Opener-Policy: same-origin');
         header('Cross-Origin-Resource-Policy: same-site');
         if (($config['security']['hsts'] ?? false) && self::isHttps()) {

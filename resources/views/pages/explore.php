@@ -4,6 +4,11 @@
     <?=pm_icon('search','sm')?><label class="sr-only" for="explore-search">Search Pune news</label><input id="explore-search" name="q" placeholder="Search Pune, stories, areas…" autocomplete="off"><button class="link" type="submit">Search</button>
   </form>
   <section id="searchResults" class="sect" hidden></section>
+  <a class="explore-map-promo" href="<?=pm_e(pm_url('/area-map'))?>">
+    <span class="map-promo-icon"><?=pm_icon('pin')?></span>
+    <span><small>DISCOVER PUNE</small><strong>Your neighbourhoods, mapped</strong><em>Explore local reports and traffic coverage by area</em></span>
+    <?=pm_icon('arrow-right')?>
+  </a>
   <section class="sect">
     <div class="secttitle"><div><span class="pm-kicker">Neighbourhoods</span><h2>Your areas</h2></div><a class="link" href="<?=pm_e(pm_url('/profile'))?>">Edit</a></div>
     <div class="areas"><?php foreach(['Baner','Kothrud','Aundh','Hadapsar','Shivajinagar','Wakad'] as $area): ?><button class="chip" type="button" data-area="<?= pm_e($area) ?>"><?= pm_e($area) ?></button><?php endforeach; ?></div>
@@ -14,7 +19,7 @@
       <?php foreach (array_slice($stories,0,4) as $story): $m=$story['media'][0]??null; ?>
       <a class="trend" href="<?= pm_e(pm_story_path($story)) ?>">
         <div class="trendimg"><img src="<?= pm_e(pm_media($m)) ?>" alt="<?=pm_e($story['headline']??'Pune story')?>" loading="lazy"><span class="dist"><?=pm_icon('pin','sm')?> <?= pm_e($story['locations'][0]['name']??'Pune') ?></span></div>
-        <div class="trendbody"><span class="area"><?= pm_e($story['categories'][0]['name']??'Pune') ?></span><h3><?= pm_e($story['headline']) ?></h3><div class="stats"><span><?=pm_icon('heart','sm')?> <?= pm_e($story['likes']??'1.3K') ?></span><span><?=pm_icon('comment','sm')?> <?= pm_e($story['comments']??'82') ?></span></div></div>
+        <div class="trendbody"><span class="area"><?= pm_e($story['categories'][0]['name']??'Pune') ?></span><?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?><h3><?= pm_e($story['headline']) ?></h3><div class="stats"><?php if(isset($story['likes'])&&is_numeric($story['likes'])): ?><span><?=pm_icon('heart','sm')?> <?=number_format((int)$story['likes'])?></span><?php endif; ?><?php if(isset($story['comments'])&&is_numeric($story['comments'])): ?><span><?=pm_icon('comment','sm')?> <?=number_format((int)$story['comments'])?></span><?php endif; ?></div></div>
       </a>
       <?php endforeach; ?>
     </div>

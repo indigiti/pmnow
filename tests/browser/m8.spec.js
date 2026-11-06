@@ -66,7 +66,7 @@ test('M9 discovery endpoints and NewsArticle metadata are crawlable', async ({ p
   const cutoff=Date.now()-(48*60*60*1000);
   const recentStories=recentJson.data.filter(story=>{
     const ts=Date.parse(story.published_at||'');
-    return Number.isFinite(ts)&&ts>=cutoff;
+    return !story.is_sample&&Number.isFinite(ts)&&ts>=cutoff;
   });
   if(recentStories.length>0) expect(newsXml).toContain('<news:news>');
   else expect(newsXml).not.toContain('<news:news>');

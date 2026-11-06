@@ -205,6 +205,79 @@ window.gsap = gsap;
     });
   }
 
+  // Neighbourhood map: selection highlights the same area in the schematic
+  // locator and the report list. Pins never represent live congestion speeds.
+  const pulseMap=$('[data-area-map]');
+  if(pulseMap){
+    const selectArea=(slug)=>{
+      $$('[data-area-map] [data-map-area]').forEach(pin=>{
+        pin.setAttribute('aria-pressed',String(pin.dataset.mapArea===slug));
+      });
+      $$('[data-area-row]').forEach(row=>{
+        row.classList.toggle('is-selected',row.dataset.areaRow===slug);
+      });
+      const row=$$('[data-area-row]').find(x=>x.dataset.areaRow===slug);
+      const status=$('[data-area-map-selection]');
+      const name=row?.querySelector('h3')?.textContent||slug;
+      if(status) status.textContent=name+' highlighted. Open the area to read matching stories.';
+      row?.scrollIntoView({behavior:scrollBehavior,block:'nearest'});
+    };
+    $$('[data-map-area]').forEach(button=>{
+      button.addEventListener('click',()=>selectArea(button.dataset.mapArea));
+    });
+  }
+
+  // Optional consent-based nearest-neighbourhood suggestion. Coordinates
+  // remain in the browser; neither coordinates nor accuracy are transmitted.
+  const findArea=$('[data-find-area]');
+  if(findArea){
+    const geoStatus=$('[data-geo-status]');
+    findArea.addEventListener('click',()=>{
+      if(!navigator.geolocation){
+        if(geoStatus)geoStatus.textContent='Location is unavailable. Choose neighbourhoods manually.';
+        return;
+      }
+      findArea.disabled=true;
+      if(geoStatus)geoStatus.textContent='Checking approximate location…';
+      navigator.geolocation.getCurrentPosition(position=>{
+        findArea.disabled=false;
+        const {latitude,longitude,accuracy}=position.coords;
+        if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||!Number.isFinite(accuracy)||accuracy>3000){
+          if(geoStatus)geoStatus.textContent='Location is not precise enough. Select your area manually.';
+          return;
+        }
+        const rad=x=>x*Math.PI/180;
+        const distance=(lat,lon)=>{
+          const a=Math.sin(rad(lat-latitude)/2)**2
+            +Math.cos(rad(latitude))*Math.cos(rad(lat))*Math.sin(rad(lon-longitude)/2)**2;
+          return 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(Math.max(0,1-a)));
+        };
+        const candidates=$$('[data-geo-area]').map(el=>({
+          name:el.dataset.geoArea,
+          km:distance(Number(el.dataset.geoLat),Number(el.dataset.geoLon))
+        })).filter(x=>Number.isFinite(x.km)&&x.name);
+        candidates.sort((a,b)=>a.km-b.km);
+        const specific=candidates.find(x=>x.name!=='Pune'&&x.km<=4.5);
+        const nearest=specific||candidates.find(x=>x.km<=4.5);
+        if(!nearest){
+          if(geoStatus)geoStatus.textContent='No nearby mapped area identified. Choose an area manually.';
+          return;
+        }
+        const input=$$('input[name="areas"]',prefForm).find(el=>el.value===nearest.name);
+        if(!input){
+          if(geoStatus)geoStatus.textContent='Select a neighbourhood manually.';
+          return;
+        }
+        input.checked=true;
+        if(geoStatus)geoStatus.textContent='Suggested '+nearest.name+'. Review the selection, then select Save My Pune.';
+        input.closest('label')?.scrollIntoView({behavior:scrollBehavior,block:'nearest'});
+      },()=>{
+        findArea.disabled=false;
+        if(geoStatus)geoStatus.textContent='Location permission was unavailable. Select areas manually.';
+      },{enableHighAccuracy:false,timeout:12000,maximumAge:0});
+    });
+  }
+
   const notifyForm=$('[data-notification-preferences]');
   if(notifyForm){
     notifyForm.addEventListener('submit',async(e)=>{

@@ -17,11 +17,15 @@ $filterTokens = strtolower(trim(implode(' ', array_filter($filterParts))));
   <a href="<?= pm_e($path) ?>" class="tapread"><img class="media" src="<?= pm_e(pm_media($media)) ?>" alt="<?=pm_e($story['headline']??'Pune news image')?>" loading="<?= $variant==='lead'?'eager':'lazy' ?>"></a>
   <div class="storycopy">
     <span class="flag <?= ($story['type']??'')==='article'?'outline':'' ?>"><?= pm_e(($story['type']??'')==='live'?'LIVE':$category) ?></span>
+    <?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?>
     <a href="<?= pm_e($path) ?>"><h2 class="h1"><?= pm_e($story['headline']) ?></h2></a>
     <p class="dek"><?= pm_e($story['deck'] ?? '') ?></p>
     <div class="meta"><span class="sourcepill"><?= pm_e($provider) ?> · <?= pm_e($sourceName) ?></span><span class="locpill"><?=pm_icon('pin','sm')?> <?= pm_e($location) ?></span><span><?= pm_e($story['display_time'] ?? 'Updated recently') ?></span></div>
     <div class="story-actions">
-      <div class="engagement" aria-label="Story engagement"><span><?=pm_icon('heart','sm')?> <?= pm_e($story['likes'] ?? '2.4K') ?></span><span><?=pm_icon('comment','sm')?> <?= pm_e($story['comments'] ?? '143') ?></span></div>
+      <div class="engagement" aria-label="Story engagement">
+        <?php if(isset($story['likes'])&&$story['likes']!==''&&is_numeric($story['likes'])): ?><span><?=pm_icon('heart','sm')?> <?=number_format((int)$story['likes'])?></span><?php endif; ?>
+        <?php if(isset($story['comments'])&&$story['comments']!==''&&is_numeric($story['comments'])): ?><span><?=pm_icon('comment','sm')?> <?=number_format((int)$story['comments'])?></span><?php endif; ?>
+      </div>
       <div class="action-group">
         <button class="act" type="button" data-share-url="<?=pm_e($path)?>" data-share-title="<?=pm_e($story['headline'])?>" aria-label="Share story"><?=pm_icon('share','sm')?> <span>Share</span></button>
         <button class="act <?= $isSaved?'on':'' ?>" type="button" data-bookmark="<?= pm_e($story['id']) ?>" aria-label="<?= $isSaved?'Remove bookmark':'Save story' ?>"><?=pm_icon('bookmark','sm')?> <span><?= $isSaved?'Saved':'Save' ?></span></button>
