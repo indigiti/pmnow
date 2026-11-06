@@ -79,6 +79,7 @@ jobs:
           php tests/m11_smoke.php
           php tests/m12_smoke.php
           php tests/area_pulse_smoke.php
+          php tests/sample_badge_smoke.php
           rm -f .env
 
       - name: Browser smoke
@@ -118,6 +119,7 @@ jobs:
         run: |
           bash ops/package-release.sh
           test -f dist/pmnow/public/index.php
+          test -f dist/pmnow/public/media/sample-content-badge.svg
           test -f dist/pmnow/private/bootstrap/app.php
           test -f dist/pmnow/SHA256SUMS
           ! find dist/pmnow/private/storage -type f ! -name '.gitkeep' | grep -q .
