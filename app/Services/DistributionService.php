@@ -16,6 +16,7 @@ final class DistributionService
     {
         $story=$this->stories->find($storyId);
         if(!$story)throw new \RuntimeException('Story not found');
+        if(!empty($story['is_sample']))throw new \RuntimeException('Sample stories cannot be distributed as verified newsroom alerts');
         $kind=strtolower(trim($kind));
         if(!in_array($kind,['breaking','neighbourhood','topic'],true))throw new \RuntimeException('Unsupported alert kind');
 
@@ -83,7 +84,10 @@ final class DistributionService
             'published_at'=>$story['published_at']??$story['created_at']??null,
             'areas'=>array_values(array_filter(array_column($story['locations']??[],'name'))),
             'topics'=>array_values(array_filter(array_column($story['categories']??[],'name'))),
-        ],$this->stories->feed(max(1,min(50,$limit))));
+        ],array_values(array_slice(array_filter(
+            $this->stories->feed(50),
+            static fn(array $story):bool=>empty($story['is_sample'])
+        ),0,max(1,min(50,$limit)))));
     }
 
     public function notificationPreferences(array $user):array
@@ -115,7 +119,8 @@ final class DistributionService
         $content=(array)($user['preferences']??[]);
         $areas=array_map([$this,'norm'],(array)($content['areas']??[]));
         $topics=array_map([$this,'norm'],(array)($content['channels']??[]));
-        $rows=$this->stories->feed(50);
+        $rows=array_values(array_filter($this->stories->feed(50),
+            static fn(array $story):bool=>empty($story['is_sample'])));
         foreach($rows as $i=>&$story){
             $score=50-$i;
             $storyAreas=array_map([$this,'norm'],array_column($story['locations']??[],'name'));
