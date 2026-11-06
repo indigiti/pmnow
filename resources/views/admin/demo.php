@@ -13,7 +13,7 @@ $modules=[
  <div>
   <span class="demo-eyebrow">PMNOW TEST SANDBOX · <?=pm_e(strtoupper((string)($demoStatus['environment']??'')))?></span>
   <h2>Test PMNow using realistic synthetic content.</h2>
-  <p>Sample Pune news, reader scenarios, editorial drafts, and city utilities — all identified as DEMO, never real-world reporting.</p>
+  <p>Test Pune news, reader scenarios, editorial drafts, and city utilities — all identified as DEMO, never real-world reporting.</p>
  </div>
  <div class="demo-total"><strong data-demo-total><?=number_format((int)($demoStatus['total']??0))?></strong><span>Demo records installed</span></div>
 </section>
