@@ -10,6 +10,7 @@
 </div>
 <main class="gallerybody">
   <span class="pm-kicker">Photo story</span>
+  <?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?>
   <h1><?= pm_e($story['headline']) ?></h1><p class="dek"><?= pm_e($story['deck']??'') ?></p>
   <div class="byline"><div class="person"><div class="avatar">PM</div><div><b><?= pm_e($story['author']??'Pune Mirror Desk') ?></b><br><small><?=pm_icon('pin','sm')?> <?= pm_e($story['locations'][0]['name']??'Pune') ?></small></div></div><small><?=pm_e($story['display_time']??'Updated recently')?></small></div>
   <div class="galleryactions"><span class="act"><?=pm_icon('heart','sm')?><span><?=pm_e($story['likes']??'—')?></span></span><span class="act"><?=pm_icon('comment','sm')?><span><?=pm_e($story['comments']??'—')?></span></span><button class="act" type="button" data-share-url="<?=pm_e($path)?>" data-share-title="<?=pm_e($story['headline'])?>"><?=pm_icon('share','sm')?><span>Share</span></button><button class="act <?= $saved?'on':'' ?>" type="button" data-bookmark="<?= pm_e($story['id']) ?>"><?=pm_icon('bookmark','sm')?><span><?= $saved?'Saved':'Save' ?></span></button></div>
