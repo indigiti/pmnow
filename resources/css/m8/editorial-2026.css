@@ -180,3 +180,6 @@ h1,h2,h3{letter-spacing:-.035em}
   .area-map-illustration{min-height:310px}
   .pulse-window{font-size:9px}
 }
+
+.map-selection-status{margin:10px 19px 0;font-size:12px;color:var(--pm-blue-deep);font-weight:650;line-height:1.5}
+.news-map-link:focus-visible,.map-pin:focus-visible,.area-directory-focus:focus-visible{outline-offset:3px}
