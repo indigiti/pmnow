@@ -206,3 +206,26 @@ h1,h2,h3{letter-spacing:-.035em}
 @media(prefers-reduced-motion:reduce){
   .bottomnav .navitem .pm-icon{transition:none}
 }
+
+/* Shared sample marker: derived from user-supplied red seal artwork.
+   The word "Sample" prevents a checkmark from implying verified journalism. */
+.pm-sample-mark{
+  display:inline-flex;align-items:center;gap:4px;
+  width:max-content;max-width:100%;
+  margin:7px 0 5px;padding:3px 8px 3px 3px;
+  border:1px solid #f9d2d9;border-radius:999px;
+  background:#fff1f3;color:#9b1832;
+  font-family:var(--pm-sans);font-size:10px;font-weight:750;
+  line-height:1;letter-spacing:.01em;white-space:nowrap;
+  vertical-align:middle;
+}
+.pm-sample-mark__icon{width:21px;height:21px;display:block;flex:0 0 21px;object-fit:contain}
+.pm-sample-mark__text{display:inline-block}
+.story.compact .pm-sample-mark,.saved-row .pm-sample-mark,.trendbody .pm-sample-mark{
+  margin:0 0 5px;padding:2px 7px 2px 2px;font-size:9px;
+}
+.story.compact .pm-sample-mark__icon,.saved-row .pm-sample-mark__icon,
+.trendbody .pm-sample-mark__icon{width:18px;height:18px;flex-basis:18px}
+.reel-copy .pm-sample-mark{background:rgba(255,255,255,.94);color:#92142a;border-color:transparent}
+.area-latest-link .pm-sample-mark{display:inline-flex;margin:0 5px 0 0;vertical-align:middle}
+.gallerybody .pm-sample-mark,.article-wrap .pm-sample-mark{margin-top:9px;margin-bottom:1px}
