@@ -17,6 +17,7 @@ $filterTokens = strtolower(trim(implode(' ', array_filter($filterParts))));
   <a href="<?= pm_e($path) ?>" class="tapread"><img class="media" src="<?= pm_e(pm_media($media)) ?>" alt="<?=pm_e($story['headline']??'Pune news image')?>" loading="<?= $variant==='lead'?'eager':'lazy' ?>"></a>
   <div class="storycopy">
     <span class="flag <?= ($story['type']??'')==='article'?'outline':'' ?>"><?= pm_e(($story['type']??'')==='live'?'LIVE':$category) ?></span>
+    <?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?>
     <a href="<?= pm_e($path) ?>"><h2 class="h1"><?= pm_e($story['headline']) ?></h2></a>
     <p class="dek"><?= pm_e($story['deck'] ?? '') ?></p>
     <div class="meta"><span class="sourcepill"><?= pm_e($provider) ?> · <?= pm_e($sourceName) ?></span><span class="locpill"><?=pm_icon('pin','sm')?> <?= pm_e($location) ?></span><span><?= pm_e($story['display_time'] ?? 'Updated recently') ?></span></div>
