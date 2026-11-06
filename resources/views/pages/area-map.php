@@ -37,6 +37,7 @@
       <span><i class="legend-dot coverage"></i> Local coverage</span>
       <span><i class="legend-dot none"></i> No recent reports</span>
     </div>
+    <p class="map-selection-status" role="status" aria-live="polite" data-area-map-selection>Select a dot to highlight its neighbourhood below.</p>
     <p class="map-disclaimer">Indicative neighbourhood locations and news counts, not GPS navigation or live road congestion. Demo content is explicitly labelled where present.</p>
   </section>
 
