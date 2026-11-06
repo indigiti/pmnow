@@ -7,6 +7,15 @@
       <fieldset>
         <legend>My neighbourhoods</legend>
         <p class="pm-muted">Choose the Pune areas that should receive extra weight in your For You feed.</p>
+        <div class="geo-area-recommendation">
+          <button type="button" class="btn geo-area-button" data-find-area><?=pm_icon('pin','sm')?> Suggest my nearby area</button>
+          <span class="geo-area-note" role="status" data-geo-status>Your approximate location is used once, only with permission. It is not saved.</span>
+        </div>
+        <div class="geo-area-centers" hidden aria-hidden="true">
+          <?php foreach($areaChoices??[] as $candidate): ?>
+            <span data-geo-area="<?=pm_e($candidate['name'])?>" data-geo-lat="<?= (float)$candidate['lat'] ?>" data-geo-lon="<?= (float)$candidate['lon'] ?>"></span>
+          <?php endforeach; ?>
+        </div>
         <div class="pref-grid">
           <?php $selectedAreas=array_map('strtolower',$state['user']['preferences']['areas']??[]); foreach($areas as $area): $name=(string)($area['name']??''); ?>
           <label class="pref-option"><input type="checkbox" name="areas" value="<?=pm_e($name)?>" <?=in_array(strtolower($name),$selectedAreas,true)?'checked':''?>><span class="chip"><?=pm_e($name)?></span></label>
