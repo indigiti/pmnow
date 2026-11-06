@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('@demo web admin can load and selectively clean synthetic QA records', async ({ page }) => {
   await page.goto('/admin/demo');
-  await expect(page.getByRole('heading', { name: 'Demo Data' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Demo Data', exact: true })).toBeVisible();
   await expect(page.locator('[data-demo-count="stories"]')).toHaveText('0');
 
   await page.locator('[data-demo-apply]').click();
