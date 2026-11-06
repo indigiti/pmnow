@@ -28,7 +28,7 @@ class IntelligencePipeline:
         text = " ".join(str(content.get(k) or "") for k in ("title", "caption", "body"))
         language = detect_language(text)
         category = classify(text, taxonomy or [], rules or [])
-        location_hits = detect_locations(text, locations or [])
+        location_hits = detect_locations(text, locations or [], title=str(content.get("title") or ""))
         entities = extract_entities(text)
         summary = summarize(text)
         ai_result = None
