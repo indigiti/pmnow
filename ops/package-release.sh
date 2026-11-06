@@ -50,6 +50,7 @@ for required in \
   "$PRIVATE/public/build/.vite/manifest.json" "$PRIVATE/bootstrap/app.php" "$PRIVATE/config/app.php" "$PRIVATE/app/Core/Router.php" \
   "$PRIVATE/resources/views/layout.php" "$PRIVATE/engine/main.py" "$PRIVATE/tools/seed.php" \
   "$PRIVATE/tools/demo-fixtures.php" "$PRIVATE/app/Services/DemoFixtureService.php" \
+  "$PRIVATE/bootstrap/staging-demo.php" \
   "$PRIVATE/app/Controllers/DemoFixtureController.php" "$PRIVATE/resources/views/admin/demo.php"; do
   [[ -f "$required" ]] || { echo "Required release file missing: ${required#$STAGE/}" >&2; exit 1; }
 done
