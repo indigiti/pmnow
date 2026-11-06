@@ -95,6 +95,7 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:browser -- --grep-invert @demo
           npx playwright test --grep @demo --project=chromium-desktop --workers=1
+          npx playwright test --grep @demo --project=chromium-mobile --workers=1
           rm -f .env
 
       - name: Demo fixture coverage and non-destructive cleanup
