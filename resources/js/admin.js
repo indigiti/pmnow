@@ -41,4 +41,57 @@
       toast(`Sent ${result.sent||0} alert(s) to ${result.matched||0} eligible reader(s)`);
     }catch(e){toast(e.message);}finally{b.disabled=false;}
   }));
+
+  // Explicitly enabled, super-admin-only demo manager. Server checks remain authoritative.
+  const demoPanel=q('[data-demo-controls]');
+  if(demoPanel){
+    const apply=q('[data-demo-apply]',demoPanel);
+    const purge=q('[data-demo-purge]',demoPanel);
+    const confirmation=q('[data-demo-purge-confirm]',demoPanel);
+    const status=q('[data-demo-status]');
+    let busy=false;
+    const show=(message,kind='info')=>{
+      if(!status)return;
+      status.textContent=message;
+      status.dataset.kind=kind;
+    };
+    const refresh=async()=>{
+      const summary=await api('/api/admin/demo/status');
+      const total=q('[data-demo-total]');
+      if(total)total.textContent=Number(summary.total||0).toLocaleString();
+      qa('[data-demo-count]').forEach(el=>{
+        el.textContent=Number(summary.counts?.[el.dataset.demoCount]||0).toLocaleString();
+      });
+    };
+    const control=()=>{
+      if(apply)apply.disabled=busy;
+      if(purge)purge.disabled=busy||confirmation?.value!=='REMOVE DEMO';
+      if(confirmation)confirmation.disabled=busy;
+    };
+    confirmation?.addEventListener('input',control);
+    const mutate=async(operation)=>{
+      if(busy)return;
+      if(operation==='purge'&&confirmation?.value!=='REMOVE DEMO'){
+        show('Type REMOVE DEMO to confirm the removal.','error');
+        return;
+      }
+      busy=true;control();
+      show(operation==='apply'?'Loading synthetic test records…':'Removing synthetic test records…');
+      try{
+        const payload={confirmation:operation==='apply'?'LOAD DEMO':'REMOVE DEMO'};
+        const result=await api('/api/admin/demo/'+operation,{method:'POST',body:JSON.stringify(payload)});
+        const changes=operation==='apply'?result.inserted:result.removed;
+        const count=Object.values(changes||{}).reduce((sum,n)=>sum+Number(n||0),0);
+        await refresh();
+        show(operation==='apply'
+          ?'Demo data ready. '+count+' new synthetic record(s) inserted; existing records preserved.'
+          :'Demo cleanup complete. '+count+' tagged record(s) removed; other data preserved.','success');
+        if(operation==='purge'&&confirmation)confirmation.value='';
+      }catch(error){show(error.message||'Demo operation failed.','error');}
+      finally{busy=false;control();}
+    };
+    apply?.addEventListener('click',()=>mutate('apply'));
+    purge?.addEventListener('click',()=>mutate('purge'));
+    control();
+  }
 })();
