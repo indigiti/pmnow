@@ -4,7 +4,7 @@ $category = $story['categories'][0]['name'] ?? ucfirst($story['type'] ?? 'News')
 $location = $story['locations'][0]['name'] ?? 'Pune';
 $path = pm_story_path($story);
 $sourceName = $story['source']['name'] ?? ($story['author'] ?? 'Pune Mirror');
-$provider = strtoupper((string)($story['source']['provider'] ?? 'desk'));
+$provider = !empty($story['is_sample']) ? '' : strtoupper((string)($story['source']['provider'] ?? 'desk'));
 $isSaved = in_array($story['id'], $userState['bookmark_story_ids'] ?? [], true);
 $isFollowed = in_array($story['id'], $userState['follow_story_ids'] ?? [], true);
 $variant = $cardVariant ?? 'standard';
@@ -20,7 +20,7 @@ $filterTokens = strtolower(trim(implode(' ', array_filter($filterParts))));
     <?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?>
     <a href="<?= pm_e($path) ?>"><h2 class="h1"><?= pm_e($story['headline']) ?></h2></a>
     <p class="dek"><?= pm_e($story['deck'] ?? '') ?></p>
-    <div class="meta"><span class="sourcepill"><?= pm_e($provider) ?> · <?= pm_e($sourceName) ?></span><span class="locpill"><?=pm_icon('pin','sm')?> <?= pm_e($location) ?></span><span><?= pm_e($story['display_time'] ?? 'Updated recently') ?></span></div>
+    <div class="meta"><span class="sourcepill"><?=pm_e($provider!=='' ? $provider.' · '.$sourceName : $sourceName)?></span><span class="locpill"><?=pm_icon('pin','sm')?> <?= pm_e($location) ?></span><span><?= pm_e($story['display_time'] ?? 'Updated recently') ?></span></div>
     <div class="story-actions">
       <div class="engagement" aria-label="Story engagement">
         <?php if(isset($story['likes'])&&$story['likes']!==''&&is_numeric($story['likes'])): ?><span><?=pm_icon('heart','sm')?> <?=number_format((int)$story['likes'])?></span><?php endif; ?>
