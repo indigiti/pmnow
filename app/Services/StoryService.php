@@ -83,7 +83,7 @@ final class StoryService
     {
         $rows = array_values(array_filter($this->store->all('story-updates'), fn($r) => ($r['story_id'] ?? '') === $storyId));
         usort($rows, fn($a,$b) => strcmp($b['published_at'] ?? '', $a['published_at'] ?? ''));
-        return $rows;
+        return array_map([$this,'cleanSyntheticUpdate'],$rows);
     }
 
     public function liveStoryByStory(string $storyId): ?array
@@ -105,7 +105,7 @@ final class StoryService
             return true;
         }));
         usort($rows, fn($a,$b) => strcmp($b['published_at'] ?? '', $a['published_at'] ?? ''));
-        return $rows;
+        return array_map([$this,'cleanSyntheticUpdate'],$rows);
     }
 
     public function taxonomyFeed(string $kind,string $slug,int $limit=30):array
@@ -134,6 +134,24 @@ final class StoryService
             if (str_contains($hay, $q)) $hits[] = $this->hydrate($story);
         }
         return $hits;
+    }
+
+    /**
+     * Existing fixture timeline records can predate the UI refresh. Only
+     * normalize their public presentation, never modify stored editorial data.
+     */
+    private function cleanSyntheticUpdate(array $row): array
+    {
+        $raw=(string)($row['headline']??$row['title']??'');
+        $synthetic=($row['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'
+            || preg_match('/^\\s*\\[DEMO\\](?:\\s+|$)/iu',$raw)===1;
+        if (!$synthetic) return $row;
+        foreach(['headline','title','summary','body'] as $key){
+            if (!isset($row[$key])||!is_string($row[$key])) continue;
+            $value=(string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu','',$row[$key])??$row[$key]);
+            $row[$key]=(string)(preg_replace('/\\bsample\\b/iu','test',$value)??$value);
+        }
+        return $row;
     }
 
     private function resolve(string $collection, array $ids): array
