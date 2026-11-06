@@ -38,7 +38,7 @@
       <span><i class="legend-dot none"></i> No recent reports</span>
     </div>
     <p class="map-selection-status" role="status" aria-live="polite" data-area-map-selection>Select a dot to highlight its neighbourhood below.</p>
-    <p class="map-disclaimer">Indicative neighbourhood locations and news counts, not GPS navigation or live road congestion. Sample content is labelled with the red seal and a Sample disclosure.</p>
+    <p class="map-disclaimer">Indicative neighbourhood locations and news counts, not GPS navigation or live road congestion. Synthetic test reporting uses a small red icon and is not independently verified.</p>
   </section>
 
   <section class="area-directory" aria-labelledby="area-directory-heading">
