@@ -28,6 +28,7 @@ final class SeoService
     public function story(array $story):array
     {
         $headline=trim((string)($story['headline']??'Pune news'));
+        $isSample=!empty($story['is_sample']);
         $description=trim((string)($story['deck']??$story['summary']??''));
         if($description==='')$description='Latest Pune news and local updates from Pune Mirror Now.';
         $image=pm_absolute_url(pm_media($story['media'][0]??null));
@@ -42,8 +43,8 @@ final class SeoService
             'canonical'=>$canonical,
             'image'=>$image,
             'type'=>'article',
-            'robots'=>'index,follow,max-image-preview:large',
-            'json_ld'=>[
+            'robots'=>$isSample?'noindex,nofollow':'index,follow,max-image-preview:large',
+            'json_ld'=>$isSample?null:[
                 '@context'=>'https://schema.org',
                 '@type'=>'NewsArticle',
                 'headline'=>$headline,
