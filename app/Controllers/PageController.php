@@ -178,7 +178,7 @@ final class PageController
             'saved'=>$saved,
             'areas'=>$areas,
             'channels'=>$channels,
-            'areaChoices'=>$this->areaPulse?->areas()??[],
+            'areaChoices'=>$this->areaPulse?->centers()??[],
             'activeNav'=>'profile',
             'userState'=>$state,
             'seo'=>$this->seo->privatePage('My Pune | Pune Mirror Now','/profile'),
