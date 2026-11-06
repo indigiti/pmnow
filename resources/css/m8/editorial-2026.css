@@ -183,3 +183,26 @@ h1,h2,h3{letter-spacing:-.035em}
 
 .map-selection-status{margin:10px 19px 0;font-size:12px;color:var(--pm-blue-deep);font-weight:650;line-height:1.5}
 .news-map-link:focus-visible,.map-pin:focus-visible,.area-directory-focus:focus-visible{outline-offset:3px}
+
+/* Long-form, galleries, reels and alerts: one typographic rhythm. */
+@media(max-width:1023px){
+  .article-hero{width:calc(100% - 32px);margin:16px 16px 0;border-radius:21px;display:block}
+}
+.gallerybody h1,.storycopy .h2,.storycopy .h1{font-family:var(--pm-serif);font-weight:700;line-height:1.14;letter-spacing:-.8px}
+.galleryviewport{width:calc(100% - 28px);margin:14px 14px 0;border-radius:22px;overflow:hidden}
+.galleryactions{flex-wrap:wrap}
+.galleryactions .act.on{color:var(--pm-blue)}
+.watch-top{font-family:var(--pm-sans);font-weight:800;letter-spacing:-.4px}
+.reel-copy h2{font-family:var(--pm-serif);font-weight:700;line-height:1.13;letter-spacing:-.5px;text-wrap:balance}
+.reel-actions button{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.2);backdrop-filter:blur(14px);box-shadow:0 8px 30px rgba(0,0,0,.16)}
+.reel-actions button.on{color:var(--pm-blue)}
+.watch-read{background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.8);border-radius:999px}
+.watch-nav{border-radius:22px 22px 0 0}
+.notification-row{border:1px solid #e4e9f2;border-radius:16px;margin-bottom:10px;padding:15px;background:#fff}
+.notification-row.unread{border-color:#cfdbf7;background:linear-gradient(110deg,#f1f6ff,#fff 75%)}
+.notification-row h3{font-family:var(--pm-sans);font-size:16px;line-height:1.35;font-weight:750}
+.utility-card{border-left-width:3px;border-radius:18px;box-shadow:var(--pm-shadow-1)}
+.utility-hero h1,.utility-entity-hero h1{font-size:clamp(32px,7vw,45px);font-weight:750}
+@media(prefers-reduced-motion:reduce){
+  .bottomnav .navitem .pm-icon{transition:none}
+}
