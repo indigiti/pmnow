@@ -210,19 +210,19 @@ window.gsap = gsap;
   const pulseMap=$('[data-area-map]');
   if(pulseMap){
     const selectArea=(slug)=>{
-      $('[data-area-map] [data-map-area]').forEach(pin=>{
+      $$('[data-area-map] [data-map-area]').forEach(pin=>{
         pin.setAttribute('aria-pressed',String(pin.dataset.mapArea===slug));
       });
-      $('[data-area-row]').forEach(row=>{
+      $$('[data-area-row]').forEach(row=>{
         row.classList.toggle('is-selected',row.dataset.areaRow===slug);
       });
-      const row=$('[data-area-row]').find(x=>x.dataset.areaRow===slug);
+      const row=$$('[data-area-row]').find(x=>x.dataset.areaRow===slug);
       const status=$('[data-area-map-selection]');
       const name=row?.querySelector('h3')?.textContent||slug;
       if(status) status.textContent=name+' highlighted. Open the area to read matching stories.';
       row?.scrollIntoView({behavior:scrollBehavior,block:'nearest'});
     };
-    $('[data-map-area]').forEach(button=>{
+    $$('[data-map-area]').forEach(button=>{
       button.addEventListener('click',()=>selectArea(button.dataset.mapArea));
     });
   }
@@ -252,7 +252,7 @@ window.gsap = gsap;
             +Math.cos(rad(latitude))*Math.cos(rad(lat))*Math.sin(rad(lon-longitude)/2)**2;
           return 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(Math.max(0,1-a)));
         };
-        const candidates=$('[data-geo-area]').map(el=>({
+        const candidates=$$('[data-geo-area]').map(el=>({
           name:el.dataset.geoArea,
           km:distance(Number(el.dataset.geoLat),Number(el.dataset.geoLon))
         })).filter(x=>Number.isFinite(x.km)&&x.name);
@@ -263,7 +263,7 @@ window.gsap = gsap;
           if(geoStatus)geoStatus.textContent='No nearby mapped area identified. Choose an area manually.';
           return;
         }
-        const input=$('input[name="areas"]',prefForm).find(el=>el.value===nearest.name);
+        const input=$$('input[name="areas"]',prefForm).find(el=>el.value===nearest.name);
         if(!input){
           if(geoStatus)geoStatus.textContent='Select a neighbourhood manually.';
           return;
