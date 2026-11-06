@@ -4,6 +4,11 @@
     <?=pm_icon('search','sm')?><label class="sr-only" for="explore-search">Search Pune news</label><input id="explore-search" name="q" placeholder="Search Pune, stories, areas…" autocomplete="off"><button class="link" type="submit">Search</button>
   </form>
   <section id="searchResults" class="sect" hidden></section>
+  <a class="explore-map-promo" href="<?=pm_e(pm_url('/area-map'))?>">
+    <span class="map-promo-icon"><?=pm_icon('pin')?></span>
+    <span><small>DISCOVER PUNE</small><strong>Your neighbourhoods, mapped</strong><em>Explore local reports and traffic coverage by area</em></span>
+    <?=pm_icon('arrow-right')?>
+  </a>
   <section class="sect">
     <div class="secttitle"><div><span class="pm-kicker">Neighbourhoods</span><h2>Your areas</h2></div><a class="link" href="<?=pm_e(pm_url('/profile'))?>">Edit</a></div>
     <div class="areas"><?php foreach(['Baner','Kothrud','Aundh','Hadapsar','Shivajinagar','Wakad'] as $area): ?><button class="chip" type="button" data-area="<?= pm_e($area) ?>"><?= pm_e($area) ?></button><?php endforeach; ?></div>
