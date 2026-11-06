@@ -27,6 +27,14 @@ final class StoryService
         $story['is_sample'] = ($story['demo_fixture_suite'] ?? '') === 'pmnow-safe-demo-v1' || $sampleByPrefix;
         if ($story['is_sample']) {
             $story['headline'] = trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu', '', $rawHeadline) ?? $rawHeadline));
+            // Existing fixture rows may still contain this wording. Keep data
+            // immutable and normalize only reader-facing presentation fields.
+            $story['headline'] = (string)(preg_replace('/\\bsample\\b/iu','test',$story['headline']) ?? $story['headline']);
+            foreach (['deck','body'] as $field) {
+                if (isset($story[$field]) && is_string($story[$field])) {
+                    $story[$field] = (string)(preg_replace('/\\bsample\\b/iu','test',$story[$field]) ?? $story[$field]);
+                }
+            }
             if (preg_match('/\\bDEMO\\b/i', (string)($story['display_time'] ?? ''))) {
                 $story['display_time'] = 'Illustrative only';
             }
