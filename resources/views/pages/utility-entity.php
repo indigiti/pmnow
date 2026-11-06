@@ -13,7 +13,7 @@
         <div class="utility-card-head"><span class="utility-severity"><?=pm_e(strtoupper((string)($update['severity']??'info')))?></span><span class="status"><?=pm_e($update['status']??'active')?></span></div>
         <h2><?=pm_e($update['title']??'Utility update')?></h2>
         <?php if(!empty($update['summary'])): ?><p><?=pm_e($update['summary'])?></p><?php endif; ?>
-        <div class="utility-meta"><span><?=pm_icon('pin','sm')?> <?=pm_e($update['area']??'Pune')?></span><span>Published <?=pm_e($update['published_at']??'')?></span><span>Verified <?=pm_e($update['verified_at']??'')?></span></div>
+        <div class="utility-meta"><span><?=pm_icon('pin','sm')?> <?=pm_e($update['area']??'Pune')?></span><span>Published <?=pm_e($update['published_at']??'')?></span><?php if(($update['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'): ?><span>DEMO · Unverified synthetic data</span><?php else: ?><span>Verified <?=pm_e($update['verified_at']??'')?></span><?php endif; ?></div>
       </article>
     <?php endforeach; ?>
   </section>
