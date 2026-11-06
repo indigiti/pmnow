@@ -30,11 +30,11 @@ final class StoryService
             if (preg_match('/\\bDEMO\\b/i', (string)($story['display_time'] ?? ''))) {
                 $story['display_time'] = 'Illustrative only';
             }
-            if (isset($story['author']) && is_string($story['author'])) {
-                $story['author'] = preg_replace('/\\bDEMO\\b/i', 'Sample', $story['author']);
-            }
-            if (is_array($story['source']) && isset($story['source']['name'])) {
-                $story['source']['name'] = preg_replace('/\\bDEMO\\b/i', 'Sample', (string)$story['source']['name']);
+            // This user-facing author/source should not repeat fixture labels.
+            // Keep unmodified attribution in the stored test records.
+            $story['author'] = 'PMNow Test Desk';
+            if (is_array($story['source'])) {
+                $story['source']['name'] = 'PMNow Test Desk';
             }
         }
         $story['cluster'] = isset($story['story_cluster_id']) && $story['story_cluster_id'] ? $this->store->get('story-clusters', (string)$story['story_cluster_id']) : null;
