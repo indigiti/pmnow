@@ -41,6 +41,31 @@ try {
     $assert(($sample['headline']??'')==='Public-safety reporting preview','title prefix removed for display');
     $assert(($sample['display_time']??'')==='Illustrative only','old DEMO date label hidden');
     $assert(strpos((string)$sample['author'],'DEMO')===false,'presentation-only source label cleaned');
+    $assert(($sample['author']??'')==='PMNow Test Desk','synthetic author is concise');
+    $assert(!preg_match('/\\bsample\\b/i',(string)$sample['author']),'reader source has no visible Sample wording');
+    $testHeadline=$stories->hydrate(array_replace($data,['headline'=>'[DEMO] Archived community sample story']));
+    $assert(($testHeadline['headline']??'')==='Archived community test story','old fixture wording is normalized for display');
+    $store->put('story-updates',[
+      'story_id'=>$data['id'],
+      'headline'=>'[DEMO] Sample advisory revised',
+      'body'=>'A sample timeline item.',
+      'published_at'=>gmdate('c'),
+      'demo_fixture_suite'=>'pmnow-safe-demo-v1'
+    ]);
+    $timeline=$stories->storyUpdates($data['id']);
+    $assert(($timeline[0]['headline']??'')==='Test advisory revised','developing update label cleaned');
+    $assert(($timeline[0]['body']??'')==='A test timeline item.','developing update body cleaned');
+    $store->put('live-updates',[
+      'live_story_id'=>'test-live',
+      'headline'=>'Sample status',
+      'body'=>'The sample update.',
+      'published_at'=>gmdate('c'),
+      'demo_fixture_suite'=>'pmnow-safe-demo-v1'
+    ]);
+    $live=$stories->liveUpdates('test-live');
+    $assert(($live[0]['headline']??'')==='test status','live update headline cleaned case-insensitively');
+    $assert(($live[0]['body']??'')==='The test update.','live update body cleaned');
+
 
     $normal=$stories->hydrate(array_replace($data,[
         'headline'=>'Verified source-based civic reporting',
