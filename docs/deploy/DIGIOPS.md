@@ -35,6 +35,14 @@ private/
   RELEASE.json
 ```
 
+## Temporary automatic staging demo (expires November 30, 2026)
+
+For the exact HTTPS staging site `https://stage.digiti.in/pmnow`, this release temporarily enables demo fixtures **without manually configuring** `APP_ENV` or `PMNOW_DEMO_DATA_ALLOWED`, provided those settings are not explicitly set to production/false and the web server identifies its selected virtual host as `stage.digiti.in` (both `SERVER_NAME` and `HTTP_HOST`). Only the `/pmnow` application path qualifies. The existing additive fixtures then publish synthetic test stories at the first request; editorial approval is not required for these clearly marked demo stories.
+
+The exception does **not** bypass login, authorization, CSRF, or production safeguards. It is automatically disabled after November 30, 2026 (Asia/Kolkata); the data it created remains until removed from Admin → Demo Data. Any explicitly configured `APP_ENV=production` or `PMNOW_DEMO_DATA_ALLOWED=false` is respected and disables this temporary convenience.
+
+**If the hosting proxy does not identify the canonical stage virtual host, use the explicit private staging environment settings below instead.** Do not spoof headers or weaken production checks to force this shortcut. Deployment still requires the certified DigiOps `digiops-release` artifact.
+
 ## One-time staging demo configuration (DigiOps UI)
 
 The PMNow frontend will **automatically populate synthetic published stories on its first staging request** when the private app configuration specifies the exact environment below. No newsroom approval, Bash command, or manual Load action is needed. This does not run on production.
