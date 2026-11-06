@@ -45,6 +45,7 @@ $robots=(string)($seo['robots']??'index,follow,max-image-preview:large');
     <nav class="desktop-nav">
       <a href="<?=pm_e(pm_url('/'))?>" <?=($activeNav??'')==='home'?'aria-current="page"':''?>><?=pm_icon('home')?> <span>Home</span></a>
       <a href="<?=pm_e(pm_url('/explore'))?>" <?=($activeNav??'')==='explore'?'aria-current="page"':''?>><?=pm_icon('search')?> <span>Explore</span></a>
+      <a href="<?=pm_e(pm_url('/area-map'))?>"><?=pm_icon('pin')?> <span>Area Pulse</span></a>
       <a href="<?=pm_e(pm_url('/watch'))?>"><?=pm_icon('play')?> <span>Watch</span></a>
       <a href="<?=pm_e(pm_url('/notifications'))?>" <?=($activeNav??'')==='notifications'?'aria-current="page"':''?>><?=pm_icon('bell')?> <span>Alerts</span></a>
       <a href="<?=pm_e(pm_url('/profile'))?>" <?=($activeNav??'')==='profile'?'aria-current="page"':''?>><?=pm_icon('user')?> <span>My Pune</span></a>
