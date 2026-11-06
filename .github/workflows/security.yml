@@ -93,6 +93,21 @@ jobs:
           npm run test:browser
           rm -f .env
 
+      - name: Demo fixture coverage and non-destructive cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .env.example .env
+          php tools/seed.php
+          php tools/demo-fixtures.php --apply
+          php tests/demo_fixtures_smoke.php
+          php tools/demo-fixtures.php --apply
+          php tests/demo_fixtures_smoke.php
+          php tools/demo-fixtures.php --purge
+          php -r 'require "bootstrap/app.php"; $s=new PuneMirror\\Core\\JsonStore(__DIR__."/storage/data"); foreach (["stories","utility-entities","utility-updates","contents","users"] as $collection) foreach ($s->all($collection) as $row) if (($row["demo_fixture_suite"]??"")==="pmnow-safe-demo-v1") exit(1); echo "Demo purge clean\\n";'
+          php tests/smoke.php
+          rm -f .env
+
       - name: Build DigiOps split release
         run: |
           bash ops/package-release.sh
