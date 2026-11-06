@@ -79,6 +79,17 @@ if($root===$deployedRoot){
             if(pm_env($k,null)===null)pm_env_set($k,trim($v,chr(34).chr(39)));
         }
     }
+    // Temporary staging convenience: only the verified stage.digiti.in virtual
+    // host may opt into demo data without manually setting environment flags.
+    // An explicitly configured production environment is never overridden.
+    require_once $root.'/bootstrap/staging-demo.php';
+    $existingStageConfig=[];
+    foreach (['APP_ENV','APP_URL','APP_BASE_PATH','PMNOW_DEMO_DATA_ALLOWED'] as $key) {
+        $existingStageConfig[$key]=pm_env($key,null);
+    }
+    foreach (pm_temporary_stage_demo_overrides($_SERVER,$existingStageConfig) as $key=>$value) {
+        pm_env_set($key,$value);
+    }
     $defaults=[
         'APP_ENV'=>'production','APP_DEBUG'=>'false','APP_BASE_PATH'=>'/pmnow',
         'PERSISTENCE_DRIVER'=>'file','RUNTIME_DRIVER'=>'file','SSE_ENABLED'=>'false',
