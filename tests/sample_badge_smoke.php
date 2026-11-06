@@ -63,7 +63,7 @@ try {
       'demo_fixture_suite'=>'pmnow-safe-demo-v1'
     ]);
     $live=$stories->liveUpdates('test-live');
-    $assert(($live[0]['headline']??'')==='test status','live update headline cleaned case-insensitively');
+    $assert(($live[0]['headline']??'')==='Test status','live update headline retains capitalization');
     $assert(($live[0]['body']??'')==='The test update.','live update body cleaned');
 
 
