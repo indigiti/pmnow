@@ -11,6 +11,7 @@ $nav=[
   ['/admin/errors','bell','Error Center'],
   ['/admin/notifications','bell','Notifications'],
 ];
+if(($demoControlsEnabled??false)===true) $nav[]=['/admin/demo','grid','Demo Data'];
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="app-base-path" content="<?=pm_e(pm_base_path())?>"><meta name="csrf-token" content="<?=pm_e(\PuneMirror\Core\Session::csrfToken())?>"><meta name="theme-color" content="#15171b"><title>Pune Mirror Newsroom</title><link rel="stylesheet" href="<?=pm_e(pm_asset('resources/css/app.css','/assets/app.css'))?>"></head>
 <body class="admin-body"><div class="admin-shell"><aside class="admin-sidebar"><a class="admin-brand" href="<?=pm_e(pm_url('/admin'))?>"><span>PUNE</span> MIRROR <small>NEWSROOM</small></a><nav>
