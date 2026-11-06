@@ -65,7 +65,9 @@ try {
     ob_start();
     require $viewRoot.'/components/sample-badge.php';
     $html=(string)ob_get_clean();
-    $assert(str_contains($html,'Sample content, not verified news'),'accessible label is explicit');
+    $assert(str_contains($html,'aria-label="Synthetic test content — not verified reporting"'),'accessible disclosure remains explicit');
+    $assert(!preg_match('/>\\s*Sample\\s*</i',$html),'icon has no visible Sample word');
+    $assert(str_contains($html,'width="16" height="16"'),'badge intrinsic size is compact');
     $assert(str_contains($html,'/media/sample-content-badge.svg'),'vector badge uses the shared asset');
     $assert(is_file($app['root'].'/public/media/sample-content-badge.svg'),'badge vector exists');
 
