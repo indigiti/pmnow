@@ -3,6 +3,7 @@
 <img class="article-hero" src="<?= pm_e(pm_media($m)) ?>" alt="<?=pm_e($story['headline']??'Pune news image')?>">
 <main class="article-wrap">
   <span class="flag outline"><?= pm_e($story['categories'][0]['name']??'Pune') ?></span>
+  <?php if(!empty($story['is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?>
   <h1><?= pm_e($story['headline']) ?></h1>
   <p class="lead"><?= pm_e($story['deck']??'') ?></p>
   <div class="meta"><span>By <?= pm_e($story['author']??'Pune Mirror Desk') ?></span><span><?=pm_icon('pin','sm')?> <?= pm_e($story['locations'][0]['name']??'Pune') ?></span><span><?=pm_e($story['display_time']??'Updated recently')?></span></div>
