@@ -89,6 +89,19 @@ final class AreaPulseService
         return $out;
     }
 
+    /**
+     * Small static directory for consent-based neighbourhood suggestions.
+     * No story JSON scan when displaying the settings form.
+     */
+    public function centers():array
+    {
+        $rows=[];
+        foreach (self::AREAS as $slug=>[$name,$lat,$lon]) {
+            $rows[]=['slug'=>$slug,'name'=>$name,'lat'=>$lat,'lon'=>$lon];
+        }
+        return $rows;
+    }
+
     public function totals(array $areas): array
     {
         return [
