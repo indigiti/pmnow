@@ -46,7 +46,7 @@ final class AreaPulseService
         $counts = [];
         foreach (self::AREAS as $slug=>$entry) {
             $counts[$slug]=['stories'=>0,'traffic_reports'=>0,'last_reported_at'=>null,
-                'latest_headline'=>null,'latest_path'=>null,'demo_reports'=>0];
+                'latest_headline'=>null,'latest_path'=>null,'latest_is_sample'=>false,'demo_reports'=>0];
             $seen[$slug]=[];
         }
         foreach ($this->store->all('stories') as $story) {
@@ -63,7 +63,11 @@ final class AreaPulseService
                 if (($story['demo_fixture_suite']??'')==='pmnow-safe-demo-v1') $counts[$slug]['demo_reports']++;
                 if ($counts[$slug]['last_reported_at']===null || $published > strtotime((string)$counts[$slug]['last_reported_at'])) {
                     $counts[$slug]['last_reported_at']=$story['published_at'];
-                    $counts[$slug]['latest_headline']=$story['headline']??'';
+                    $headline=(string)($story['headline']??'');
+                    $counts[$slug]['latest_is_sample'] =
+                        ($story['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'
+                        || preg_match('/^\\s*\\[DEMO\\](?:\\s+|$)/iu',$headline)===1;
+                    $counts[$slug]['latest_headline']=trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu','',$headline)??$headline));
                     $counts[$slug]['latest_path']=pm_story_path($story);
                 }
             }
