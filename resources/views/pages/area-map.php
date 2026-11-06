@@ -38,7 +38,7 @@
       <span><i class="legend-dot none"></i> No recent reports</span>
     </div>
     <p class="map-selection-status" role="status" aria-live="polite" data-area-map-selection>Select a dot to highlight its neighbourhood below.</p>
-    <p class="map-disclaimer">Indicative neighbourhood locations and news counts, not GPS navigation or live road congestion. Demo content is explicitly labelled where present.</p>
+    <p class="map-disclaimer">Indicative neighbourhood locations and news counts, not GPS navigation or live road congestion. Sample content is labelled with the red seal and a Sample disclosure.</p>
   </section>
 
   <section class="area-directory" aria-labelledby="area-directory-heading">
@@ -61,7 +61,7 @@
               <?php if($area['following']): ?> · Following<?php endif; ?>
             </p>
             <?php if($area['latest_headline']): ?>
-              <a class="area-latest-link" href="<?=pm_e($area['latest_path'])?>"><?=pm_e($area['latest_headline'])?></a>
+              <a class="area-latest-link" href="<?=pm_e($area['latest_path'])?>"><?php if(!empty($area['latest_is_sample'])): require $viewRoot.'/components/sample-badge.php'; endif; ?><?=pm_e($area['latest_headline'])?></a>
             <?php endif; ?>
           </div>
           <a class="area-directory-arrow" href="<?=pm_e(pm_url('/area/'.$area['slug']))?>"
