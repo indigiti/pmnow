@@ -48,7 +48,9 @@ for required in \
   "$PUBLIC/index.php" "$PUBLIC/.htaccess" "$PUBLIC/health.php" "$PUBLIC/ready.php" \
   "$PUBLIC/assets/app.css" "$PUBLIC/assets/app.js" "$PUBLIC/build/.vite/manifest.json" \
   "$PRIVATE/public/build/.vite/manifest.json" "$PRIVATE/bootstrap/app.php" "$PRIVATE/config/app.php" "$PRIVATE/app/Core/Router.php" \
-  "$PRIVATE/resources/views/layout.php" "$PRIVATE/engine/main.py" "$PRIVATE/tools/seed.php"; do
+  "$PRIVATE/resources/views/layout.php" "$PRIVATE/engine/main.py" "$PRIVATE/tools/seed.php" \
+  "$PRIVATE/tools/demo-fixtures.php" "$PRIVATE/app/Services/DemoFixtureService.php" \
+  "$PRIVATE/app/Controllers/DemoFixtureController.php" "$PRIVATE/resources/views/admin/demo.php"; do
   [[ -f "$required" ]] || { echo "Required release file missing: ${required#$STAGE/}" >&2; exit 1; }
 done
 

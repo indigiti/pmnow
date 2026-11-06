@@ -37,7 +37,7 @@ jobs:
           CERTIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm run build
           SOURCE_SHA="$CERTIFIED_SHA" OUTPUT_DIR="$RUNNER_TEMP/pmnow-release" bash ops/package-release.sh
           test -f "$RUNNER_TEMP/pmnow-release/pmnow/public/index.php"

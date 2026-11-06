@@ -22,4 +22,76 @@
   const credentialDialog=q('[data-credential-dialog]'); qa('[data-open-credential]').forEach(b=>b.addEventListener('click',()=>{q('[name=source_id]',credentialDialog).value=b.dataset.openCredential;credentialDialog?.showModal();})); q('[data-save-credential]')?.addEventListener('click',async e=>{e.preventDefault();const f=q('[data-credential-form]');const d=Object.fromEntries(new FormData(f));try{await api(`/api/admin/sources/${d.source_id}/credentials`,{method:'POST',body:JSON.stringify({credentials:{[d.credential_name]:d.credential_value}})});credentialDialog.close();toast('Credential encrypted and stored');location.reload();}catch(err){toast(err.message);}});
   qa('[data-resolve-error]').forEach(b=>b.addEventListener('click',async()=>{try{await api(`/api/admin/errors/${b.dataset.resolveError}/resolve`,{method:'POST',body:'{}'});location.reload();}catch(e){toast(e.message);}}));
   q('[data-refresh-health]')?.addEventListener('click',async()=>{try{await api('/api/admin/system/health');location.reload();}catch(e){toast(e.message);}});
+  q('[data-create-utility-entity]')?.addEventListener('submit',async e=>{
+    e.preventDefault();const f=e.currentTarget;const data=Object.fromEntries(new FormData(f));
+    data.areas=String(data.areas||'').split(',').map(x=>x.trim()).filter(Boolean);
+    try{await api('/api/admin/utility/entities',{method:'POST',body:JSON.stringify(data)});toast('Utility entity created');location.reload();}catch(err){toast(err.message);}
+  });
+  q('[data-create-utility-update]')?.addEventListener('submit',async e=>{
+    e.preventDefault();const f=e.currentTarget;const data=Object.fromEntries(new FormData(f));
+    try{const result=await api('/api/admin/utility/updates',{method:'POST',body:JSON.stringify(data)});toast(`Utility update published · ${result.follower_notifications||0} follower alert(s)`);location.reload();}catch(err){toast(err.message);}
+  });
+  qa('[data-resolve-utility-update]').forEach(b=>b.addEventListener('click',async()=>{
+    b.disabled=true;try{await api(`/api/admin/utility/updates/${b.dataset.resolveUtilityUpdate}/resolve`,{method:'POST',body:'{}'});toast('Utility update resolved');location.reload();}catch(err){toast(err.message);}finally{b.disabled=false;}
+  }));
+  qa('[data-distribute-story]').forEach(b=>b.addEventListener('click',async()=>{
+    b.disabled=true;
+    try{
+      const result=await api('/api/admin/distribution/alerts',{method:'POST',body:JSON.stringify({story_id:b.dataset.distributeStory,kind:b.dataset.distributionKind})});
+      toast(`Sent ${result.sent||0} alert(s) to ${result.matched||0} eligible reader(s)`);
+    }catch(e){toast(e.message);}finally{b.disabled=false;}
+  }));
+
+  // Explicitly enabled, super-admin-only demo manager. Server checks remain authoritative.
+  const demoPanel=q('[data-demo-controls]');
+  if(demoPanel){
+    const apply=q('[data-demo-apply]',demoPanel);
+    const purge=q('[data-demo-purge]',demoPanel);
+    const confirmation=q('[data-demo-purge-confirm]',demoPanel);
+    const status=q('[data-demo-status]');
+    let busy=false;
+    const show=(message,kind='info')=>{
+      if(!status)return;
+      status.textContent=message;
+      status.dataset.kind=kind;
+    };
+    const refresh=async()=>{
+      const summary=await api('/api/admin/demo/status');
+      const total=q('[data-demo-total]');
+      if(total)total.textContent=Number(summary.total||0).toLocaleString();
+      qa('[data-demo-count]').forEach(el=>{
+        el.textContent=Number(summary.counts?.[el.dataset.demoCount]||0).toLocaleString();
+      });
+    };
+    const control=()=>{
+      if(apply)apply.disabled=busy;
+      if(purge)purge.disabled=busy||confirmation?.value!=='REMOVE DEMO';
+      if(confirmation)confirmation.disabled=busy;
+    };
+    confirmation?.addEventListener('input',control);
+    const mutate=async(operation)=>{
+      if(busy)return;
+      if(operation==='purge'&&confirmation?.value!=='REMOVE DEMO'){
+        show('Type REMOVE DEMO to confirm the removal.','error');
+        return;
+      }
+      busy=true;control();
+      show(operation==='apply'?'Loading synthetic test records…':'Removing synthetic test records…');
+      try{
+        const payload={confirmation:operation==='apply'?'LOAD DEMO':'REMOVE DEMO'};
+        const result=await api('/api/admin/demo/'+operation,{method:'POST',body:JSON.stringify(payload)});
+        const changes=operation==='apply'?result.inserted:result.removed;
+        const count=Object.values(changes||{}).reduce((sum,n)=>sum+Number(n||0),0);
+        await refresh();
+        show(operation==='apply'
+          ?'Demo data ready. '+count+' new synthetic record(s) inserted; existing records preserved.'
+          :'Demo cleanup complete. '+count+' tagged record(s) removed; other data preserved.','success');
+        if(operation==='purge'&&confirmation)confirmation.value='';
+      }catch(error){show(error.message||'Demo operation failed.','error');}
+      finally{busy=false;control();}
+    };
+    apply?.addEventListener('click',()=>mutate('apply'));
+    purge?.addEventListener('click',()=>mutate('purge'));
+    control();
+  }
 })();

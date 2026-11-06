@@ -85,12 +85,30 @@ jobs:
           set -euo pipefail
           cp .env.example .env
           php tools/seed.php
-          php -S 127.0.0.1:8080 -t public tools/dev-router.php > /tmp/pmnow-browser.log 2>&1 &
+          PMNOW_DEMO_DATA_ALLOWED=true php -S 127.0.0.1:8080 -t public tools/dev-router.php > /tmp/pmnow-browser.log 2>&1 &
           PHP_PID=$!
           trap 'kill $PHP_PID 2>/dev/null || true' EXIT
           for i in {1..30}; do curl -fsS http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
           npx playwright install --with-deps chromium
-          npm run test:browser
+          npm run test:browser -- --grep-invert @demo
+          npx playwright test --grep @demo --project=chromium-desktop --workers=1
+          rm -f .env
+
+      - name: Demo fixture coverage and non-destructive cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .env.example .env
+          php tools/seed.php
+          php tools/demo-fixtures.php --apply
+          php tests/demo_fixtures_smoke.php
+          php tools/demo-fixtures.php --apply
+          php tests/demo_fixtures_smoke.php
+          php tests/demo_web_guard.php
+          php tests/staging_autoseed_smoke.php
+          php tools/demo-fixtures.php --purge
+          php -r 'require "bootstrap/app.php"; $s=new PuneMirror\Core\JsonStore(__DIR__."/storage/data"); foreach (["stories","utility-entities","utility-updates","contents","users"] as $collection) foreach ($s->all($collection) as $row) if (($row["demo_fixture_suite"]??"")==="pmnow-safe-demo-v1") exit(1); echo "Demo purge clean\n";'
+          php tests/smoke.php
           rm -f .env
 
       - name: Build DigiOps split release
