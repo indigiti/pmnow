@@ -34,6 +34,35 @@ final class DemoFixtureService
             && filter_var(pm_env('PMNOW_DEMO_DATA_ALLOWED', 'false'), FILTER_VALIDATE_BOOL);
     }
 
+    /**
+     * Lazy one-time seeding after a certified DigiOps staging release.
+     * Only a specifically configured stage.digiti.in/pmnow deployment can write fixtures.
+     * The marker survives deployments and prevents background regeneration after cleanup.
+     */
+    public function ensureStagingSeeded(): bool
+    {
+        if (strtolower((string)($this->config['env'] ?? 'production')) !== 'staging') return false;
+        if (!$this->webEnabled()) return false;
+        if (strtolower((string)(parse_url((string)($this->config['url'] ?? ''), PHP_URL_HOST) ?: '')) !== 'stage.digiti.in') return false;
+        if ((string)($this->config['base_path'] ?? '') !== '/pmnow') return false;
+        $marker = $this->root . '/storage/cache/demo-fixtures-autoseed-v1.json';
+        if (is_file($marker)) return false;
+        try {
+            $this->execute('apply', true);
+            if (!is_dir(dirname($marker)) && !mkdir(dirname($marker), 0775, true) && !is_dir(dirname($marker))) {
+                throw new \RuntimeException('Unable to create staging fixture marker directory');
+            }
+            $payload = json_encode(['suite'=>self::SUITE,'initialized_at'=>gmdate('c')], JSON_THROW_ON_ERROR);
+            if (file_put_contents($marker, $payload, LOCK_EX) === false) {
+                throw new \RuntimeException('Unable to record staging fixture initialization');
+            }
+            return true;
+        } catch (\Throwable $e) {
+            error_log('PMNow demo autoseed: '.$e->getMessage());
+            return false;
+        }
+    }
+
     public function status(): array
     {
         $counts = [];
