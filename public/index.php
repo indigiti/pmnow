@@ -76,7 +76,7 @@ if($root===$deployedRoot){
             if($line===''||str_starts_with($line,'#')||!str_contains($line,'='))continue;
             [$k,$v]=array_map('trim',explode('=',$line,2));
             if(!preg_match('/^[A-Z][A-Z0-9_]*$/',$k))continue;
-            if(pm_env($k,null)===null)pm_env_set($k,trim($v,"\\\"'"));
+            if(pm_env($k,null)===null)pm_env_set($k,trim($v,chr(34).chr(39)));
         }
     }
     $defaults=[
