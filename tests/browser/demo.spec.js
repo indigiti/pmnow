@@ -18,7 +18,7 @@ test('@demo web admin can load and selectively clean synthetic QA records', asyn
   await expect(sampleCard).toBeVisible();
   await expect(sampleCard.locator('h2')).not.toContainText('[DEMO]');
   await expect(sampleCard.locator('.pm-sample-mark')).toHaveAttribute('aria-label','Synthetic test content — not verified reporting');
-  await expect(sampleCard.locator('.pm-sample-mark')).toBeEmpty();
+  await expect(sampleCard.locator('.pm-sample-mark')).toHaveText('');
   await expect(sampleCard.locator('.sourcepill')).not.toContainText(/sample|manual/i);
   const cardBadgeSize=await sampleCard.locator('.pm-sample-mark img').evaluate(img=>({width:img.getBoundingClientRect().width,height:img.getBoundingClientRect().height}));
   expect(cardBadgeSize.width).toBeLessThanOrEqual(17);
@@ -40,12 +40,12 @@ test('@demo web admin can load and selectively clean synthetic QA records', asyn
   expect(JSON.stringify(channelPayload.items)).not.toContain(sampleId);
   await sampleCard.locator('.tapread').click();
   await expect(page.locator('.pm-sample-mark').first()).toBeVisible();
-  await expect(page.locator('.pm-sample-mark').first()).toBeEmpty();
+  await expect(page.locator('.pm-sample-mark').first()).toHaveText('');
 
   await page.goto('/watch');
   const watchBadge=page.locator('.reel .pm-sample-mark').first();
   await expect(watchBadge).toBeVisible();
-  await expect(watchBadge).toBeEmpty();
+  await expect(watchBadge).toHaveText('');
   const watchSizes=await watchBadge.evaluate(el=>{
     const icon=el.querySelector('img');
     const reel=el.closest('.reel');
