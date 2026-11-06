@@ -23,6 +23,6 @@ return [
         'max_request_bytes'=>(int)(pm_env('MAX_REQUEST_BYTES') ?: 1048576),
         'login_rate_limit'=>(int)(pm_env('LOGIN_RATE_LIMIT') ?: 10),
         'allow_private_source_urls'=>filter_var(pm_env('ALLOW_PRIVATE_SOURCE_URLS') ?: 'false',FILTER_VALIDATE_BOOL),
-        'csp'=>pm_env('CONTENT_SECURITY_POLICY') ?: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+        'csp'=>pm_env('CONTENT_SECURITY_POLICY') ?: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
     ],
 ];
