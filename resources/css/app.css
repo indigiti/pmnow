@@ -5,6 +5,7 @@
 @import "./m8/components.css";
 @import "./m8/pages.css";
 @import "./m8/admin.css";
+@import "./m8/editorial-2026.css";
 
 @source "../views/**/*.php";
 @source "../js/**/*.js";
