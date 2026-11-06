@@ -37,7 +37,8 @@ try {
     $check($baner[0]['stories']===1,'published recent article counted once');
     $check($baner[0]['traffic_reports']===1,'traffic report correctly classified');
     $check($baner[0]['following']===true,'following status reflected');
-    $check($baner[0]['latest_headline']==='[DEMO] Baner road layout example','latest article exists');
+    $check($baner[0]['latest_headline']==='Baner road layout example','sample headline prefix is hidden');
+    $check($baner[0]['latest_is_sample']===true,'sample provenance flag is preserved');
     $check(count($service->centers())===12,'static centroids available');
     $check($service->totals($rows)['articles']===1,'news counts are not traffic-speed measurements');
     $check(count(array_filter($rows,static fn($r)=>$r['stories']>0))===1,'only Baner has reports');
