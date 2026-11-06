@@ -25,7 +25,7 @@ $modules=[
 <section class="demo-actions-grid" data-demo-controls>
  <article class="demo-action-panel">
   <span class="demo-tag">SAFE TO REPEAT</span><h2>Load demo data</h2>
-  <p>Inserts missing sample content for the public experience and newsroom. Existing records are left intact.</p>
+  <p>Inserts missing synthetic test content for the public experience and newsroom. Existing records are left intact.</p>
   <button class="admin-primary" type="button" data-demo-apply>Load demo data</button>
  </article>
  <article class="demo-action-panel">
