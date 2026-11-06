@@ -57,7 +57,7 @@ try {
 
     $seo=(new SeoService($app['config']))->story($sample);
     $assert(($seo['robots']??'')==='noindex,nofollow','synthetic content is noindex');
-    $assert(($seo['json_ld']??true)===null,'synthetic content is not published as NewsArticle schema');
+    $assert(array_key_exists('json_ld',$seo)&&$seo['json_ld']===null,'synthetic content is not published as NewsArticle schema');
     $realSeo=(new SeoService($app['config']))->story($normal);
     $assert(($realSeo['json_ld']['@type']??'')==='NewsArticle','normal journalism retains NewsArticle schema');
 
