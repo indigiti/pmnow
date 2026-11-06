@@ -6,6 +6,10 @@ final class SecurityHeaders
     public static function apply(array $config): void
     {
         if (headers_sent()) return;
+        // Never allow search engines to index synthetic fixtures on nonproduction sites.
+        if (in_array(strtolower((string)($config['env']??'production')), ['local','testing','staging'], true)) {
+            header('X-Robots-Tag: noindex, nofollow, noarchive');
+        }
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
         header('Referrer-Policy: strict-origin-when-cross-origin');
