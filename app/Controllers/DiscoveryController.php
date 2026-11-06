@@ -29,6 +29,7 @@ final class DiscoveryController
         foreach($this->store->all('locations') as $row)if(!empty($row['slug']))$urls[]=['loc'=>pm_absolute_url('/area/'.rawurlencode((string)$row['slug'])),'lastmod'=>(string)($row['updated_at']??gmdate('c'))];
         foreach($this->stories->all() as $story){
             if(($story['status']??'')!=='published')continue;
+            if($this->isSample($story))continue;
             $urls[]=['loc'=>pm_absolute_url(pm_story_path($story)),'lastmod'=>(string)($story['updated_at']??$story['published_at']??gmdate('c'))];
         }
         header('Content-Type: application/xml; charset=utf-8');
@@ -43,6 +44,7 @@ final class DiscoveryController
         $cutoff=time()-172800;$rows=[];
         foreach($this->stories->all() as $story){
             if(($story['status']??'')!=='published')continue;
+            if($this->isSample($story))continue;
             $published=(string)($story['published_at']??'');$ts=strtotime($published);
             if(!$ts||$ts<$cutoff)continue;
             $rows[]=$story;
@@ -64,6 +66,7 @@ final class DiscoveryController
         echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         echo '<rss version="2.0"><channel><title>Pune Mirror Now</title><link>'.$this->x(pm_absolute_url('/')).'</link><description>Pune news, traffic, civic and neighbourhood updates.</description>';
         foreach($rows as $story){
+            if(!empty($story['is_sample']))continue;
             echo '<item><title>'.$this->x((string)$story['headline']).'</title><link>'.$this->x(pm_absolute_url(pm_story_path($story))).'</link><guid isPermaLink="true">'.$this->x(pm_absolute_url(pm_story_path($story))).'</guid><pubDate>'.gmdate(DATE_RSS,strtotime((string)($story['published_at']??'now'))).'</pubDate><description>'.$this->x((string)($story['deck']??'')).'</description></item>';
         }
         echo '</channel></rss>';exit;
@@ -80,6 +83,12 @@ final class DiscoveryController
             'items'=>$this->distribution->channelFeed(20),
         ],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
         exit;
+    }
+
+    private function isSample(array $story):bool
+    {
+        return ($story['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'
+            || preg_match('/^\\s*\\[DEMO\\](?:\\s+|$)/iu',(string)($story['headline']??''))===1;
     }
 
     private function x(string $value):string{return htmlspecialchars($value,ENT_XML1|ENT_QUOTES,'UTF-8');}
