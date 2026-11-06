@@ -27,14 +27,22 @@ final class StoryService
         $story['is_sample'] = ($story['demo_fixture_suite'] ?? '') === 'pmnow-safe-demo-v1' || $sampleByPrefix;
         if ($story['is_sample']) {
             $story['headline'] = trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu', '', $rawHeadline) ?? $rawHeadline));
+            // Existing fixture rows may still contain this wording. Keep data
+            // immutable and normalize only reader-facing presentation fields.
+            $story['headline'] = $this->replaceSampleWord($story['headline']);
+            foreach (['deck','body'] as $field) {
+                if (isset($story[$field]) && is_string($story[$field])) {
+                    $story[$field] = $this->replaceSampleWord($story[$field]);
+                }
+            }
             if (preg_match('/\\bDEMO\\b/i', (string)($story['display_time'] ?? ''))) {
                 $story['display_time'] = 'Illustrative only';
             }
-            if (isset($story['author']) && is_string($story['author'])) {
-                $story['author'] = preg_replace('/\\bDEMO\\b/i', 'Sample', $story['author']);
-            }
-            if (is_array($story['source']) && isset($story['source']['name'])) {
-                $story['source']['name'] = preg_replace('/\\bDEMO\\b/i', 'Sample', (string)$story['source']['name']);
+            // This user-facing author/source should not repeat fixture labels.
+            // Keep unmodified attribution in the stored test records.
+            $story['author'] = 'PMNow Test Desk';
+            if (is_array($story['source'])) {
+                $story['source']['name'] = 'PMNow Test Desk';
             }
         }
         $story['cluster'] = isset($story['story_cluster_id']) && $story['story_cluster_id'] ? $this->store->get('story-clusters', (string)$story['story_cluster_id']) : null;
@@ -75,7 +83,7 @@ final class StoryService
     {
         $rows = array_values(array_filter($this->store->all('story-updates'), fn($r) => ($r['story_id'] ?? '') === $storyId));
         usort($rows, fn($a,$b) => strcmp($b['published_at'] ?? '', $a['published_at'] ?? ''));
-        return $rows;
+        return array_map([$this,'cleanSyntheticUpdate'],$rows);
     }
 
     public function liveStoryByStory(string $storyId): ?array
@@ -97,7 +105,7 @@ final class StoryService
             return true;
         }));
         usort($rows, fn($a,$b) => strcmp($b['published_at'] ?? '', $a['published_at'] ?? ''));
-        return $rows;
+        return array_map([$this,'cleanSyntheticUpdate'],$rows);
     }
 
     public function taxonomyFeed(string $kind,string $slug,int $limit=30):array
@@ -126,6 +134,37 @@ final class StoryService
             if (str_contains($hay, $q)) $hits[] = $this->hydrate($story);
         }
         return $hits;
+    }
+
+    /**
+     * Existing fixture timeline records can predate the UI refresh. Only
+     * normalize their public presentation, never modify stored editorial data.
+     */
+    private function replaceSampleWord(string $text): string
+    {
+        // Preserve headline/title capitalization in old synthetic fixtures.
+        return (string)(preg_replace_callback('/\\bsample\\b/iu',
+            static function(array $match):string {
+                return match($match[0]) {
+                    'SAMPLE'=>'TEST',
+                    'Sample'=>'Test',
+                    default=>'test',
+                };
+            }, $text) ?? $text);
+    }
+
+    private function cleanSyntheticUpdate(array $row): array
+    {
+        $raw=(string)($row['headline']??$row['title']??'');
+        $synthetic=($row['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'
+            || preg_match('/^\\s*\\[DEMO\\](?:\\s+|$)/iu',$raw)===1;
+        if (!$synthetic) return $row;
+        foreach(['headline','title','summary','body'] as $key){
+            if (!isset($row[$key])||!is_string($row[$key])) continue;
+            $value=(string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu','',$row[$key])??$row[$key]);
+            $row[$key]=$this->replaceSampleWord($value);
+        }
+        return $row;
     }
 
     private function resolve(string $collection, array $ids): array

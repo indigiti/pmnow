@@ -17,7 +17,12 @@ test('@demo web admin can load and selectively clean synthetic QA records', asyn
   const sampleCard=page.locator('#feed .story').filter({has:page.locator('.pm-sample-mark')}).first();
   await expect(sampleCard).toBeVisible();
   await expect(sampleCard.locator('h2')).not.toContainText('[DEMO]');
-  await expect(sampleCard.locator('.pm-sample-mark')).toContainText('Sample');
+  await expect(sampleCard.locator('.pm-sample-mark')).toHaveAttribute('aria-label','Synthetic test content — not verified reporting');
+  await expect(sampleCard.locator('.pm-sample-mark')).toHaveText('');
+  await expect(sampleCard.locator('.sourcepill')).not.toContainText(/sample|manual/i);
+  const cardBadgeSize=await sampleCard.locator('.pm-sample-mark img').evaluate(img=>({width:img.getBoundingClientRect().width,height:img.getBoundingClientRect().height}));
+  expect(cardBadgeSize.width).toBeLessThanOrEqual(17);
+  expect(cardBadgeSize.height).toBeLessThanOrEqual(17);
   await expect(sampleCard.locator('.pm-sample-mark img')).toHaveAttribute('src','/media/sample-content-badge.svg');
   const sampleId=await sampleCard.getAttribute('data-story-id');
   expect(sampleId).toBeTruthy();
@@ -35,6 +40,31 @@ test('@demo web admin can load and selectively clean synthetic QA records', asyn
   expect(JSON.stringify(channelPayload.items)).not.toContain(sampleId);
   await sampleCard.locator('.tapread').click();
   await expect(page.locator('.pm-sample-mark').first()).toBeVisible();
+  await expect(page.locator('.pm-sample-mark').first()).toHaveText('');
+
+  await page.goto('/watch');
+  const watchBadge=page.locator('.reel .pm-sample-mark').first();
+  await expect(watchBadge).toBeVisible();
+  await expect(watchBadge).toHaveText('');
+  const watchSizes=await watchBadge.evaluate(el=>{
+    const icon=el.querySelector('img');
+    const reel=el.closest('.reel');
+    const hero=reel?.querySelector(':scope > img');
+    return {
+      markW:el.getBoundingClientRect().width,
+      markH:el.getBoundingClientRect().height,
+      iconW:icon?.getBoundingClientRect().width,
+      iconH:icon?.getBoundingClientRect().height,
+      heroW:hero?.getBoundingClientRect().width,
+      heroH:hero?.getBoundingClientRect().height
+    };
+  });
+  expect(watchSizes.markW).toBeLessThanOrEqual(18);
+  expect(watchSizes.markH).toBeLessThanOrEqual(18);
+  expect(watchSizes.iconW).toBeLessThanOrEqual(18);
+  expect(watchSizes.iconH).toBeLessThanOrEqual(18);
+  expect(watchSizes.heroW).toBeGreaterThan(250);
+  expect(watchSizes.heroH).toBeGreaterThan(350);
   await page.goto('/admin/demo');
 
   await page.locator('[data-demo-apply]').click();

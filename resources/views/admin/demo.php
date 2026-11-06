@@ -13,7 +13,7 @@ $modules=[
  <div>
   <span class="demo-eyebrow">PMNOW TEST SANDBOX · <?=pm_e(strtoupper((string)($demoStatus['environment']??'')))?></span>
   <h2>Test PMNow using realistic synthetic content.</h2>
-  <p>Sample Pune news, reader scenarios, editorial drafts, and city utilities — all identified as DEMO, never real-world reporting.</p>
+  <p>Test Pune news, reader scenarios, editorial drafts, and city utilities — all identified as DEMO, never real-world reporting.</p>
  </div>
  <div class="demo-total"><strong data-demo-total><?=number_format((int)($demoStatus['total']??0))?></strong><span>Demo records installed</span></div>
 </section>
@@ -25,7 +25,7 @@ $modules=[
 <section class="demo-actions-grid" data-demo-controls>
  <article class="demo-action-panel">
   <span class="demo-tag">SAFE TO REPEAT</span><h2>Load demo data</h2>
-  <p>Inserts missing sample content for the public experience and newsroom. Existing records are left intact.</p>
+  <p>Inserts missing synthetic test content for the public experience and newsroom. Existing records are left intact.</p>
   <button class="admin-primary" type="button" data-demo-apply>Load demo data</button>
  </article>
  <article class="demo-action-panel">

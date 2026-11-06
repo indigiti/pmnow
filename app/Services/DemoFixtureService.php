@@ -224,7 +224,7 @@ final class DemoFixtureService
             ['rain-traffic','article','Rain and traffic bulletin layout test','traffic','pune','rain',5],
             ['metro-service','article','Metro commuter information card test','metro','shivajinagar','metro',12],
             ['ward-repair','article','Ward-level footpath update layout test','civic','aundh','civic',24],
-            ['weather-panel','article','Weather conditions explainer sample','weather','baner','rain',35],
+            ['weather-panel','article','Weather conditions explainer test','weather','baner','rain',35],
             ['crime-format','article','Public-safety reporting template preview','crime','kothrud','crime',45],
             ['school-calendar','article','School calendar information test','education','hadapsar','heritage',58],
             ['clinic-explainer','article','Public health information module test','health','viman-nagar','civic',70],
@@ -253,7 +253,7 @@ final class DemoFixtureService
                 'body'=>"DEMO DATA ONLY — This article is entirely fictional and provided to test PMNow layouts and workflows.\n\n"
                   ."Paragraph two tests the typography, content width, mobile reading rhythm, and readability of longer reporting.\n\n"
                   ."Paragraph three tests scrolling, sharing, bookmarks, feed rankings, and story navigation. "
-                  ."No event or claim in this sample should be understood as a real-world report.",
+                  ."No event or claim in this test should be understood as a real-world report.",
                 'media_ids'=>$imageIds,'category_ids'=>[$categories[$category]['id']],
                 'location_ids'=>[$locations[$area]['id']],
                 'tags'=>['demo','synthetic','qa-'.$category],
@@ -263,7 +263,7 @@ final class DemoFixtureService
         }
         
         foreach ([
-            [0,'Initial synthetic update','A sample timeline item for newsroom presentation.'],
+            [0,'Initial synthetic update','A test timeline item for newsroom presentation.'],
             [1,'Simulated status change','A fictional follow-up for chronology and refresh testing.'],
             [2,'Simulated resolution','A fictional final update; no real roads are affected.'],
         ] as [$i,$headline,$body]) {
@@ -280,7 +280,7 @@ final class DemoFixtureService
         foreach ([
             [0,'metro','Simulation started'],
             [1,'traffic','Simulated transport advisory'],
-            [2,'civic','Sample advisory revised'],
+            [2,'civic','Test advisory revised'],
             [3,'metro','Simulated service normal'],
         ] as [$i,$type,$headline]) {
             $make('live-updates','live-update-'.$i,[
@@ -295,8 +295,8 @@ final class DemoFixtureService
             ['review','review_required','Traffic advisory awaiting verification','traffic','shivajinagar'],
             ['ready','ready','Neighbourhood civic story ready for approval','civic','baner'],
             ['duplicate','duplicate','Potential duplicate for clustering tests','metro','pune'],
-            ['rejected','rejected','Rejected sample with invalid reporting','crime','kothrud'],
-            ['archived','archived','Archived event calendar sample','events','pune'],
+            ['rejected','rejected','Rejected test item with invalid reporting','crime','kothrud'],
+            ['archived','archived','Archived event calendar test','events','pune'],
             ['hindi','review_required','हिंदी शीर्षक प्रदर्शन परीक्षण','education','hadapsar'],
             ['marathi','review_required','मराठी बातमी मांडणी चाचणी','civic','pune'],
         ] as [$key,$status,$title,$category,$area]) {

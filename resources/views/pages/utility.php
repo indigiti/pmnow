@@ -1,7 +1,7 @@
 <?php require $viewRoot . '/components/header.php'; ?>
 <main class="scroll withnav utility-page">
   <section class="utility-hero">
-    <div><span class="pm-kicker">Pune Utility</span><h1>City status</h1><p>Source-labelled traffic, transit, weather, air, civic, outage and emergency updates. Sample advisories are clearly marked.</p></div>
+    <div><span class="pm-kicker">Pune Utility</span><h1>City status</h1><p>Source-labelled traffic, transit, weather, air, civic, outage and emergency updates. Synthetic advisories use a red icon and are not verified reporting.</p></div>
     <a class="btn" href="<?=pm_e(pm_url('/profile'))?>">Tune My Pune</a>
   </section>
   <nav class="utility-filters" aria-label="Utility categories">
@@ -22,7 +22,7 @@
         <a href="<?=pm_e(pm_url((string)($update['path']??'/utility')))?>"><h2><?=pm_e($sampleUtilityTitle)?></h2></a>
         <?php if(!empty($update['summary'])): ?><p><?=pm_e($update['summary'])?></p><?php endif; ?>
         <div class="utility-meta"><span><?=pm_icon('pin','sm')?> <?=pm_e($update['area']??'Pune')?></span><span><?=pm_e($sampleUtilityEntity)?></span><span><?=pm_e($update['status']??'active')?></span></div>
-        <div class="utility-source"><?php if(($update['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'): ?><span>Illustrative · Unverified advisory</span><?php else: ?><span>Verified <?=pm_e($update['verified_at']??$update['published_at']??'')?></span><?php endif; ?><?php if(!empty($update['source_label'])): ?><span>Source: <?=pm_e($isSampleUtility?str_ireplace('DEMO','Sample',(string)$update['source_label']):$update['source_label'])?></span><?php endif; ?></div>
+        <div class="utility-source"><?php if(($update['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'): ?><span>Illustrative · Unverified advisory</span><?php else: ?><span>Verified <?=pm_e($update['verified_at']??$update['published_at']??'')?></span><?php endif; ?><?php if(!empty($update['source_label'])): ?><span>Source: <?=pm_e($isSampleUtility?'Synthetic test data':$update['source_label'])?></span><?php endif; ?></div>
         <div class="utility-actions"><a class="act" href="<?=pm_e(pm_url((string)($update['path']??'/utility')))?>">Details</a><button class="act <?=$followed?'on':''?>" type="button" data-utility-follow="<?=pm_e($entity['id']??'')?>"><span><?=$followed?'Following':'Follow'?></span></button></div>
       </article>
     <?php endforeach; ?>

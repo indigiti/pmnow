@@ -67,7 +67,11 @@ final class AreaPulseService
                     $counts[$slug]['latest_is_sample'] =
                         ($story['demo_fixture_suite']??'')==='pmnow-safe-demo-v1'
                         || preg_match('/^\\s*\\[DEMO\\](?:\\s+|$)/iu',$headline)===1;
-                    $counts[$slug]['latest_headline']=trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu','',$headline)??$headline));
+                    $cleanHeadline=trim((string)(preg_replace('/^\\s*\\[DEMO\\]\\s*/iu','',$headline)??$headline));
+                    if($counts[$slug]['latest_is_sample']){
+                        $cleanHeadline=(string)(preg_replace('/\\bsample\\b/iu','test',$cleanHeadline)??$cleanHeadline);
+                    }
+                    $counts[$slug]['latest_headline']=$cleanHeadline;
                     $counts[$slug]['latest_path']=pm_story_path($story);
                 }
             }
