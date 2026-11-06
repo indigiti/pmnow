@@ -11,6 +11,18 @@ test('@demo web admin can load and selectively clean synthetic QA records', asyn
   await expect(page.locator('[data-demo-count="contents"]')).toHaveText('7');
   await expect(page.locator('[data-demo-count="utility-updates"]')).toHaveText('9');
 
+  // Existing synthetic records are visually marked using the supplied seal,
+  // not with a raw [DEMO] headline. The disclosure must remain visible.
+  await page.goto('/');
+  const sampleCard=page.locator('#feed .story').filter({has:page.locator('.pm-sample-mark')}).first();
+  await expect(sampleCard).toBeVisible();
+  await expect(sampleCard.locator('h2')).not.toContainText('[DEMO]');
+  await expect(sampleCard.locator('.pm-sample-mark')).toContainText('Sample');
+  await expect(sampleCard.locator('.pm-sample-mark img')).toHaveAttribute('src',/sample-content-badge\\.svg/);
+  await sampleCard.locator('.tapread').click();
+  await expect(page.locator('.pm-sample-mark').first()).toBeVisible();
+  await page.goto('/admin/demo');
+
   await page.locator('[data-demo-apply]').click();
   await expect(page.locator('[data-demo-status]')).toContainText('0 new synthetic record(s)');
 
